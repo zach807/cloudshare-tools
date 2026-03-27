@@ -397,8 +397,24 @@
 
     '    <div style="margin-bottom:16px">',
     '      <label style="display:block;font-size:11px;font-weight:500;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">Class Name Filter</label>',
-    '      <input type="text" id="cs-name-filter" placeholder="e.g. OSCP, Incident Response, Lab 101" style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#F05C37\'" onblur="this.style.borderColor=\'#e8eaed\'" />',
-    '      <div style="font-size:11px;color:#9ca3af;margin-top:4px">Separate multiple terms with commas &mdash; matches any</div>',
+    '      <div id="cs-class-dropdown-wrap" style="position:relative">',
+    '        <div id="cs-class-trigger" style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box;user-select:none">',
+    '          <span id="cs-class-label" style="color:#9ca3af">Loading classes...</span>',
+    '          <span style="color:#9ca3af;font-size:10px">&#9660;</span>',
+    '        </div>',
+    '        <div id="cs-class-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #e8eaed;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:100;overflow:hidden">',
+    '          <div style="padding:8px 10px;border-bottom:1px solid #e8eaed">',
+    '            <input type="text" id="cs-class-search" placeholder="Search classes..." style="width:100%;border:none;outline:none;font-size:13px;font-family:inherit;color:#242D37;background:transparent;box-sizing:border-box" />',
+    '          </div>',
+    '          <div style="padding:5px 10px;border-bottom:1px solid #f0f0f0;display:flex;gap:10px">',
+    '            <span id="cs-class-select-all" style="font-size:11px;color:#F05C37;cursor:pointer;font-weight:500">Select All</span>',
+    '            <span id="cs-class-deselect-all" style="font-size:11px;color:#F05C37;cursor:pointer;font-weight:500">Deselect All</span>',
+    '          </div>',
+    '          <div id="cs-class-list" style="max-height:200px;overflow-y:auto;padding:4px 0">',
+    '            <div style="padding:10px 12px;font-size:12px;color:#9ca3af;text-align:center">Loading classes...</div>',
+    '          </div>',
+    '        </div>',
+    '      </div>',
     '    </div>',
 
     '    <div style="font-size:10px;font-weight:600;color:#F05C37;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px">',
@@ -444,6 +460,7 @@
   document.getElementById('cs-export-close').onclick = function() { overlay.style.display = 'none'; };
   overlay.onclick = function(e) { if (e.target === overlay) overlay.style.display = 'none'; };
 
+  // ---- Status dropdown ----
   var statusTrigger = document.getElementById('cs-status-trigger');
   var statusMenu = document.getElementById('cs-status-menu');
   var statusLabel = document.getElementById('cs-status-label');
@@ -458,6 +475,11 @@
     var wrap = document.getElementById('cs-status-dropdown-wrap');
     if (wrap && !wrap.contains(e.target)) {
       statusMenu.style.display = 'none';
+    }
+    var cwrap = document.getElementById('cs-class-dropdown-wrap');
+    if (cwrap && !cwrap.contains(e.target)) {
+      var cmenu = document.getElementById('cs-class-menu');
+      if (cmenu) cmenu.style.display = 'none';
     }
   });
 
@@ -491,6 +513,231 @@
   }
   updateStatusLabel();
 
+  // ---- Class dropdown state ----
+  var prefetchedClasses = null; // null = loading, [] = loaded (may be empty), array of {id, name, eid, kind, st, sd}
+  var prefetchError = false;
+
+  var classDropTrigger = document.getElementById('cs-class-trigger');
+  var classDropMenu = document.getElementById('cs-class-menu');
+  var classDropLabel = document.getElementById('cs-class-label');
+  var classSearchInput = document.getElementById('cs-class-search');
+  var classListEl = document.getElementById('cs-class-list');
+
+  classDropTrigger.onclick = function(e) {
+    e.stopPropagation();
+    var isOpen = classDropMenu.style.display !== 'none';
+    classDropMenu.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen && classSearchInput) {
+      classSearchInput.focus();
+    }
+  };
+
+  classSearchInput.oninput = function() {
+    renderClassList(classSearchInput.value);
+  };
+
+  document.getElementById('cs-class-select-all').onclick = function(e) {
+    e.stopPropagation();
+    var checkboxes = classListEl.querySelectorAll('.cs-class-cb');
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = true;
+      // also mark the backing data
+      var nm = checkboxes[i].getAttribute('data-name');
+      setClassChecked(nm, true);
+    }
+    updateClassLabel();
+  };
+
+  document.getElementById('cs-class-deselect-all').onclick = function(e) {
+    e.stopPropagation();
+    var checkboxes = classListEl.querySelectorAll('.cs-class-cb');
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = false;
+      var nm = checkboxes[i].getAttribute('data-name');
+      setClassChecked(nm, false);
+    }
+    updateClassLabel();
+  };
+
+  // Track checked state per class name (name used as key since ids may vary)
+  var classCheckedState = {}; // name -> bool
+
+  function setClassChecked(name, val) {
+    classCheckedState[name] = val;
+  }
+
+  function isClassChecked(name) {
+    if (classCheckedState.hasOwnProperty(name)) return classCheckedState[name];
+    return true; // default checked
+  }
+
+  function updateClassLabel() {
+    if (prefetchedClasses === null) {
+      classDropLabel.style.color = '#9ca3af';
+      classDropLabel.textContent = 'Loading classes...';
+      return;
+    }
+    if (prefetchError) {
+      classDropLabel.style.color = '#ef4444';
+      classDropLabel.textContent = 'Failed to load classes';
+      return;
+    }
+    var total = prefetchedClasses.length;
+    if (total === 0) {
+      classDropLabel.style.color = '#9ca3af';
+      classDropLabel.textContent = 'No classes found';
+      return;
+    }
+    var checkedCount = 0;
+    for (var i = 0; i < prefetchedClasses.length; i++) {
+      if (isClassChecked(prefetchedClasses[i].name)) checkedCount++;
+    }
+    classDropLabel.style.color = '#242D37';
+    if (checkedCount === 0) {
+      classDropLabel.textContent = 'None selected';
+    } else if (checkedCount === total) {
+      classDropLabel.textContent = 'All classes (' + total + ')';
+    } else {
+      classDropLabel.textContent = checkedCount + ' of ' + total + ' selected';
+    }
+  }
+
+  function renderClassList(searchTerm) {
+    if (prefetchedClasses === null) {
+      classListEl.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:#9ca3af;text-align:center">Loading classes...</div>';
+      return;
+    }
+    if (prefetchError) {
+      classListEl.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:#ef4444;text-align:center">Error loading classes. Try refreshing.</div>';
+      return;
+    }
+    if (prefetchedClasses.length === 0) {
+      classListEl.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:#9ca3af;text-align:center">No classes found.</div>';
+      return;
+    }
+
+    var term = (searchTerm || '').toLowerCase().trim();
+    var html = '';
+    var shownCount = 0;
+    for (var i = 0; i < prefetchedClasses.length; i++) {
+      var cls = prefetchedClasses[i];
+      if (term && cls.name.toLowerCase().indexOf(term) === -1) continue;
+      var checked = isClassChecked(cls.name) ? ' checked' : '';
+      var escapedName = cls.name.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '&quot;');
+      html = html + '<label style="display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:13px;color:#3a3f47;cursor:pointer;user-select:none">' +
+        '<input type="checkbox" class="cs-class-cb" data-name="' + escapedName + '"' + checked + ' style="accent-color:#F05C37;width:14px;height:14px;cursor:pointer;flex-shrink:0" />' +
+        '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(cls.name) + '</span>' +
+        '</label>';
+      shownCount++;
+    }
+    if (shownCount === 0) {
+      classListEl.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:#9ca3af;text-align:center">No matches for "' + escapeHtml(term) + '"</div>';
+      return;
+    }
+    classListEl.innerHTML = html;
+
+    // attach change listeners
+    var newCbs = classListEl.querySelectorAll('.cs-class-cb');
+    for (var j = 0; j < newCbs.length; j++) {
+      newCbs[j].onchange = (function(cb) {
+        return function() {
+          setClassChecked(cb.getAttribute('data-name'), cb.checked);
+          updateClassLabel();
+        };
+      })(newCbs[j]);
+    }
+  }
+
+  function escapeHtml(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ---- Pre-fetch classes in background ----
+  var isAccelerate = window.location.hostname.indexOf('accelerate') !== -1;
+  var apiBase = isAccelerate ? 'https://accelerate-api.cloudshare.com' : '';
+
+  function doPreFetch() {
+    var p;
+    if (isAccelerate) {
+      p = fetchAllAccelerateClasses();
+    } else {
+      p = fetchAllClassicClasses();
+    }
+    p.then(function(classes) {
+      prefetchedClasses = classes;
+      classCheckedState = {};
+      updateClassLabel();
+      renderClassList('');
+    }, function(err) {
+      prefetchError = true;
+      prefetchedClasses = [];
+      updateClassLabel();
+      renderClassList('');
+      console.error('CS Export: class prefetch failed', err);
+    });
+  }
+
+  function fetchAllAccelerateClasses() {
+    return new Promise(function(resolve, reject) {
+      var results = [];
+      var offset = 0;
+      var total = 0;
+
+      function fetchPage() {
+        fetch(apiBase + '/api/v1/Experiences/List?offset=' + offset + '&limit=100&count=true', {credentials:'include'})
+          .then(function(r) { return r.json(); })
+          .then(function(ld) {
+            total = ld.count || 0;
+            var items = ld.data || [];
+            for (var i = 0; i < items.length; i++) {
+              results.push({
+                id: items[i].legacyId,
+                name: items[i].name || 'Unnamed',
+                eid: items[i].id,
+                kind: items[i].kindId || 'training',
+                st: items[i].statusId || '',
+                sd: items[i].startDate || ''
+              });
+            }
+            offset += 100;
+            if (results.length < total) {
+              fetchPage();
+            } else {
+              resolve(results);
+            }
+          })
+          .catch(reject);
+      }
+      fetchPage();
+    });
+  }
+
+  function fetchAllClassicClasses() {
+    return new Promise(function(resolve, reject) {
+      fetch('/api/v3/class', {credentials:'include'})
+        .then(function(r) { return r.json(); })
+        .then(function(cd) {
+          var results = [];
+          for (var i = 0; i < cd.length; i++) {
+            results.push({
+              id: cd[i].id,
+              name: cd[i].name || 'Unnamed',
+              eid: '',
+              kind: 'class',
+              st: cd[i].statusId || cd[i].status || '',
+              sd: cd[i].startDate || ''
+            });
+          }
+          resolve(results);
+        })
+        .catch(reject);
+    });
+  }
+
+  // Start pre-fetch after overlay is in DOM (setTimeout 0 ensures non-blocking)
+  setTimeout(function() { doPreFetch(); }, 0);
+
+  // ---- Export button ----
   document.getElementById('cs-export-run').onclick = async function() {
     var btn = document.getElementById('cs-export-run');
     var status = document.getElementById('cs-export-status');
@@ -504,8 +751,6 @@
 
     var DATE_FROM = document.getElementById('cs-date-from').value;
     var DATE_TO = document.getElementById('cs-date-to').value;
-    var NAME_FILTER_RAW = (document.getElementById('cs-name-filter').value || '').trim().toLowerCase();
-    var NAME_FILTERS = NAME_FILTER_RAW ? NAME_FILTER_RAW.split(',').map(function(s){return s.trim()}).filter(function(s){return s.length > 0}) : [];
     var MIN_STUDENTS = parseInt(document.getElementById('cs-min-students').value, 10) || 0;
     var CONCURRENCY = 15;
     var MAX_RETRIES = 3;
@@ -523,9 +768,7 @@
       allowedStatuses[statusCbs[si].value] = statusCbs[si].checked;
     }
 
-    var isAccelerate = window.location.hostname.indexOf('accelerate') !== -1;
     var platform = isAccelerate ? 'Accelerate' : 'Classic';
-    var apiBase = isAccelerate ? 'https://accelerate-api.cloudshare.com' : '';
 
     function parseDate(str) {
       if (!str) return null;
@@ -562,13 +805,8 @@
       return allowedStatuses['other'] !== false;
     }
 
-    function matchesNameFilter(name) {
-      if (!NAME_FILTERS.length) return true;
-      var lower = (name || '').toLowerCase();
-      for (var nf = 0; nf < NAME_FILTERS.length; nf++) {
-        if (lower.indexOf(NAME_FILTERS[nf]) !== -1) return true;
-      }
-      return false;
+    function isClassSelected(name) {
+      return isClassChecked(name);
     }
 
     async function fetchRetry(url, retries) {
@@ -601,39 +839,53 @@
     }
 
     try {
-      status.textContent = 'Loading classes...';
       var allClasses = [], skippedDate = 0, skippedStatus = 0, skippedName = 0, startTime = Date.now();
 
-      if (isAccelerate) {
-        var offset = 0, total = 0;
-        do {
-          var lr = await fetchRetry(apiBase + '/api/v1/Experiences/List?offset=' + offset + '&limit=100&count=true');
-          var ld = await lr.json();
-          total = ld.count || 0;
-          var items = ld.data || [];
-          for (var i = 0; i < items.length; i++) {
-            if (!isStatusAllowed(items[i].statusId)) { skippedStatus++; continue; }
-            if (!isInDateRange(items[i].startDate)) { skippedDate++; continue; }
-            if (!matchesNameFilter(items[i].name)) { skippedName++; continue; }
-            allClasses.push({id:items[i].legacyId, name:items[i].name, eid:items[i].id, kind:items[i].kindId||'training', st:items[i].statusId||'', sd:items[i].startDate||''});
-          }
-          offset += 100;
-          bar.style.width = Math.min(10, (offset / Math.max(total, 1)) * 10) + '%';
-          status.textContent = 'Loading: ' + (allClasses.length + skippedDate + skippedStatus + skippedName) + '/' + total + ' (kept ' + allClasses.length + ')';
-        } while ((allClasses.length + skippedDate + skippedStatus + skippedName) < total);
-      } else {
-        var cr = await fetchRetry('/api/v3/class');
-        var cd = await cr.json();
-        for (var i = 0; i < cd.length; i++) {
-          if (!isStatusAllowed(cd[i].statusId || cd[i].status)) { skippedStatus++; continue; }
-          if (!isInDateRange(cd[i].startDate)) { skippedDate++; continue; }
-          if (!matchesNameFilter(cd[i].name)) { skippedName++; continue; }
-          allClasses.push({id:cd[i].id, name:cd[i].name||'Unnamed', eid:'', kind:'class', st:cd[i].statusId||cd[i].status||'', sd:cd[i].startDate||''});
+      // Use pre-fetched data if available, otherwise fall back to fetching
+      if (prefetchedClasses !== null && !prefetchError) {
+        status.textContent = 'Applying filters to ' + prefetchedClasses.length + ' classes...';
+        for (var i = 0; i < prefetchedClasses.length; i++) {
+          var pc = prefetchedClasses[i];
+          if (!isStatusAllowed(pc.st)) { skippedStatus++; continue; }
+          if (!isInDateRange(pc.sd)) { skippedDate++; continue; }
+          if (!isClassSelected(pc.name)) { skippedName++; continue; }
+          allClasses.push(pc);
         }
+        bar.style.width = '10%';
+        status.textContent = allClasses.length + ' classes (skipped ' + skippedDate + ' date, ' + skippedStatus + ' status, ' + skippedName + ' name)';
+      } else {
+        // Fallback: fetch classes now (pre-fetch not ready or failed)
+        status.textContent = 'Loading classes...';
+        if (isAccelerate) {
+          var offset = 0, total = 0;
+          do {
+            var lr = await fetchRetry(apiBase + '/api/v1/Experiences/List?offset=' + offset + '&limit=100&count=true');
+            var ld = await lr.json();
+            total = ld.count || 0;
+            var items = ld.data || [];
+            for (var i = 0; i < items.length; i++) {
+              if (!isStatusAllowed(items[i].statusId)) { skippedStatus++; continue; }
+              if (!isInDateRange(items[i].startDate)) { skippedDate++; continue; }
+              if (!isClassSelected(items[i].name)) { skippedName++; continue; }
+              allClasses.push({id:items[i].legacyId, name:items[i].name, eid:items[i].id, kind:items[i].kindId||'training', st:items[i].statusId||'', sd:items[i].startDate||''});
+            }
+            offset += 100;
+            bar.style.width = Math.min(10, (offset / Math.max(total, 1)) * 10) + '%';
+            status.textContent = 'Loading: ' + (allClasses.length + skippedDate + skippedStatus + skippedName) + '/' + total + ' (kept ' + allClasses.length + ')';
+          } while ((allClasses.length + skippedDate + skippedStatus + skippedName) < total);
+        } else {
+          var cr = await fetchRetry('/api/v3/class');
+          var cd = await cr.json();
+          for (var i = 0; i < cd.length; i++) {
+            if (!isStatusAllowed(cd[i].statusId || cd[i].status)) { skippedStatus++; continue; }
+            if (!isInDateRange(cd[i].startDate)) { skippedDate++; continue; }
+            if (!isClassSelected(cd[i].name)) { skippedName++; continue; }
+            allClasses.push({id:cd[i].id, name:cd[i].name||'Unnamed', eid:'', kind:'class', st:cd[i].statusId||cd[i].status||'', sd:cd[i].startDate||''});
+          }
+        }
+        bar.style.width = '10%';
+        status.textContent = allClasses.length + ' classes (skipped ' + skippedDate + ' date, ' + skippedStatus + ' status, ' + skippedName + ' name)';
       }
-
-      bar.style.width = '10%';
-      status.textContent = allClasses.length + ' classes (skipped ' + skippedDate + ' date, ' + skippedStatus + ' status, ' + skippedName + ' name)';
 
       if (allClasses.length === 0) {
         bar.style.width = '100%';
@@ -648,32 +900,42 @@
 
       status.textContent = 'Fetching students for ' + allClasses.length + ' classes...';
       var studentErrors = [];
-      var studentTasks = allClasses.map(function(t, ti) {
-        return async function() {
-          if (!t.id) return {ci:ti, s:[], e:'no ID'};
-          try {
-            var r = await fetchRetry(apiBase + '/api/v3/instructorConsole/class/' + t.id + '/students?shouldTakeMachines=false');
-            if (r && r.ok) {
-              var s = await r.json();
-              return {ci:ti, s:s.filter(function(x){return x.id && x.id.indexOf('SD') === 0}), e:null};
-            }
-            return {ci:ti, s:[], e:'HTTP ' + (r ? r.status : 'null')};
-          } catch(e) { return {ci:ti, s:[], e:e.message}; }
-        };
-      });
+      var studentTasks = [];
+      for (var ti = 0; ti < allClasses.length; ti++) {
+        studentTasks.push((function(t, tiLocal) {
+          return async function() {
+            if (!t.id) return {ci:tiLocal, s:[], e:'no ID'};
+            try {
+              var r = await fetchRetry(apiBase + '/api/v3/instructorConsole/class/' + t.id + '/students?shouldTakeMachines=false');
+              if (r && r.ok) {
+                var s = await r.json();
+                var filtered = [];
+                for (var k = 0; k < s.length; k++) {
+                  if (s[k].id && s[k].id.indexOf('SD') === 0) filtered.push(s[k]);
+                }
+                return {ci:tiLocal, s:filtered, e:null};
+              }
+              return {ci:tiLocal, s:[], e:'HTTP ' + (r ? r.status : 'null')};
+            } catch(e) { return {ci:tiLocal, s:[], e:e.message}; }
+          };
+        })(allClasses[ti], ti));
+      }
 
       var studentsDone = 0;
-      var wrappedStudentTasks = studentTasks.map(function(fn) {
-        return async function() {
-          var result = await fn();
-          studentsDone++;
-          if (studentsDone % Math.max(1, Math.floor(allClasses.length / 20)) === 0) {
-            bar.style.width = (10 + (studentsDone / allClasses.length) * 40) + '%';
-            status.textContent = 'Students: ' + studentsDone + '/' + allClasses.length + ' classes';
-          }
-          return result;
-        };
-      });
+      var wrappedStudentTasks = [];
+      for (var wi = 0; wi < studentTasks.length; wi++) {
+        wrappedStudentTasks.push((function(fn) {
+          return async function() {
+            var result = await fn();
+            studentsDone++;
+            if (studentsDone % Math.max(1, Math.floor(allClasses.length / 20)) === 0) {
+              bar.style.width = (10 + (studentsDone / allClasses.length) * 40) + '%';
+              status.textContent = 'Students: ' + studentsDone + '/' + allClasses.length + ' classes';
+            }
+            return result;
+          };
+        })(studentTasks[wi]));
+      }
       var sr = await runPool(wrappedStudentTasks, CONCURRENCY);
 
       var filteredByMin = 0;
@@ -757,20 +1019,23 @@
         status.textContent = totalStudents + ' students found. Fetching engagement...';
 
         var engDone = 0;
-        var engTasks = engagementTasks.map(function(item) {
-          return async function() {
-            try {
-              var r = await fetchRetry(apiBase + '/api/v3/classAnalytics/studentTabsAndPanelsEngagement?studentId=' + item.s.id);
-              var eng = (r && r.ok) ? await r.json() : {tabs:[], days:[]};
-              engDone++;
-              if (engDone % Math.max(1, Math.floor(engagementTasks.length / 20)) === 0) {
-                bar.style.width = (50 + (engDone / engagementTasks.length) * 40) + '%';
-                status.textContent = 'Engagement: ' + engDone + '/' + engagementTasks.length;
-              }
-              return {ci:item.ci, s:item.s, eng:eng};
-            } catch(e) { engDone++; return {ci:item.ci, s:item.s, eng:{tabs:[], days:[]}}; }
-          };
-        });
+        var engTasks = [];
+        for (var ei = 0; ei < engagementTasks.length; ei++) {
+          engTasks.push((function(item) {
+            return async function() {
+              try {
+                var r = await fetchRetry(apiBase + '/api/v3/classAnalytics/studentTabsAndPanelsEngagement?studentId=' + item.s.id);
+                var eng = (r && r.ok) ? await r.json() : {tabs:[], days:[]};
+                engDone++;
+                if (engDone % Math.max(1, Math.floor(engagementTasks.length / 20)) === 0) {
+                  bar.style.width = (50 + (engDone / engagementTasks.length) * 40) + '%';
+                  status.textContent = 'Engagement: ' + engDone + '/' + engagementTasks.length;
+                }
+                return {ci:item.ci, s:item.s, eng:eng};
+              } catch(e) { engDone++; return {ci:item.ci, s:item.s, eng:{tabs:[], days:[]}}; }
+            };
+          })(engagementTasks[ei]));
+        }
         var er = await runPool(engTasks, CONCURRENCY);
 
         bar.style.width = '90%';
