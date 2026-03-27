@@ -2036,7 +2036,7 @@ window.fflate=module.exports||exports;})()}
     // Build the bookmarklet from the inline script source
     // Use encodeURIComponent so the browser decodes it back when navigating to the javascript: URL
     // Wrap in eval() since void() doesn't execute string literals
-    var src = document.getElementById('cs-export-src').textContent.trim();
+    var src = atob(JSON.parse(document.getElementById('cs-export-src').textContent.trim()));
     document.getElementById('cs-bookmarklet').href = 'javascript:' + encodeURIComponent(src);
   </script>
 
