@@ -72,14 +72,15 @@
     '    </div>',
 
     '    <div style="margin-bottom:12px">',
-    '      <label style="display:block;font-size:11px;font-weight:500;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">Class Name Search</label>',
-    '      <input type="text" id="cs-name-filter" placeholder="Filter by class name..." style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#F05C37\'" onblur="this.style.borderColor=\'#e8eaed\'" />',
+    '      <label style="display:block;font-size:11px;font-weight:500;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">Minimum Students</label>',
+    '      <input type="number" id="cs-min-students" value="1" min="0" style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#F05C37\'" onblur="this.style.borderColor=\'#e8eaed\'" />',
+    '      <div style="font-size:11px;color:#9ca3af;margin-top:4px">&#9432; Values &gt; 0 require fetching students first &mdash; adds processing time</div>',
     '    </div>',
 
     '    <div style="margin-bottom:16px">',
-    '      <label style="display:block;font-size:11px;font-weight:500;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">Minimum Students</label>',
-    '      <input type="number" id="cs-min-students" value="0" min="0" style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#F05C37\'" onblur="this.style.borderColor=\'#e8eaed\'" />',
-    '      <div style="font-size:11px;color:#9ca3af;margin-top:4px">&#9432; Values &gt; 0 require fetching students first &mdash; adds processing time</div>',
+    '      <label style="display:block;font-size:11px;font-weight:500;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">Class Name Filter</label>',
+    '      <input type="text" id="cs-name-filter" placeholder="e.g. OSCP, Incident Response, Lab 101" style="width:100%;padding:9px 10px;background:#f8f8f8;border:1px solid #e8eaed;border-radius:8px;color:#242D37;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#F05C37\'" onblur="this.style.borderColor=\'#e8eaed\'" />',
+    '      <div style="font-size:11px;color:#9ca3af;margin-top:4px">Separate multiple terms with commas &mdash; matches any</div>',
     '    </div>',
 
     '    <div style="font-size:10px;font-weight:600;color:#F05C37;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px">',
@@ -185,7 +186,8 @@
 
     var DATE_FROM = document.getElementById('cs-date-from').value;
     var DATE_TO = document.getElementById('cs-date-to').value;
-    var NAME_FILTER = (document.getElementById('cs-name-filter').value || '').trim().toLowerCase();
+    var NAME_FILTER_RAW = (document.getElementById('cs-name-filter').value || '').trim().toLowerCase();
+    var NAME_FILTERS = NAME_FILTER_RAW ? NAME_FILTER_RAW.split(',').map(function(s){return s.trim()}).filter(function(s){return s.length > 0}) : [];
     var MIN_STUDENTS = parseInt(document.getElementById('cs-min-students').value, 10) || 0;
     var CONCURRENCY = 15;
     var MAX_RETRIES = 3;
@@ -243,8 +245,12 @@
     }
 
     function matchesNameFilter(name) {
-      if (!NAME_FILTER) return true;
-      return (name || '').toLowerCase().indexOf(NAME_FILTER) !== -1;
+      if (!NAME_FILTERS.length) return true;
+      var lower = (name || '').toLowerCase();
+      for (var nf = 0; nf < NAME_FILTERS.length; nf++) {
+        if (lower.indexOf(NAME_FILTERS[nf]) !== -1) return true;
+      }
+      return false;
     }
 
     async function fetchRetry(url, retries) {
