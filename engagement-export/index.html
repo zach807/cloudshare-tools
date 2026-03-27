@@ -576,8 +576,10 @@
   </script>
   <script>
     // Build the bookmarklet from the inline script source
+    // Use encodeURIComponent so the browser decodes it back when navigating to the javascript: URL
+    // Wrap in eval() since void() doesn't execute string literals
     var src = document.getElementById('cs-export-src').textContent.trim();
-    document.getElementById('cs-bookmarklet').href = 'javascript:void(' + encodeURIComponent(src) + ')';
+    document.getElementById('cs-bookmarklet').href = 'javascript:' + encodeURIComponent(src);
   </script>
 
   <!-- Usage -->
