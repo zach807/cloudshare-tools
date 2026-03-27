@@ -3,122 +3,356 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CloudShare Engagement Export</title>
+<title>Engagement Export | CloudShare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fb; color: #1a1a2e; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 48px 20px; }
-  .container { max-width: 640px; width: 100%; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* Header */
-  .header { text-align: center; margin-bottom: 40px; }
-  .logo { height: 40px; margin-bottom: 20px; }
-  .header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; letter-spacing: -0.3px; }
-  .header p { color: #6b7280; font-size: 15px; line-height: 1.5; }
+  :root {
+    --cs-orange: #F05C37;
+    --cs-orange-hover: #d94f2e;
+    --cs-navy: #242D37;
+    --cs-dark: #1a2028;
+    --cs-text: #3a3f47;
+    --cs-text-light: #6b7280;
+    --cs-text-lighter: #9ca3af;
+    --cs-bg: #ffffff;
+    --cs-bg-alt: #f8f8f8;
+    --cs-border: #e8eaed;
+    --cs-blue: #6AAAE4;
+    --font-heading: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--cs-bg);
+    color: var(--cs-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #f8f4f1 0%, #f0ebe6 50%, #e8dfd8 100%);
+    padding: 60px 20px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 70% 20%, rgba(240,92,55,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 80%, rgba(106,170,228,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; max-width: 600px; margin: 0 auto; }
+  .hero-logo { height: 36px; margin-bottom: 28px; }
+  .hero h1 {
+    font-family: var(--font-heading);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--cs-navy);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: var(--cs-text-light);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Main content */
+  .main { max-width: 680px; margin: 0 auto; padding: 40px 20px 60px; }
+
+  /* Section titles */
+  .section-label {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cs-orange);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--cs-border);
+  }
 
   /* Cards */
-  .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  .card-title { font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-  .card-title svg { flex-shrink: 0; }
+  .card {
+    background: var(--cs-bg);
+    border: 1px solid var(--cs-border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
 
   /* Steps */
-  .step { display: flex; gap: 16px; margin-bottom: 18px; }
-  .step:last-child { margin-bottom: 0; }
-  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #ff6b2b; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-  .step-text { font-size: 15px; line-height: 1.6; color: #374151; padding-top: 2px; }
-  .step-text strong { color: #1a1a2e; }
+  .steps { counter-reset: step; }
+  .step {
+    display: flex;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f3f4f6;
+    counter-increment: step;
+  }
+  .step:last-child { border-bottom: none; padding-bottom: 0; }
+  .step:first-child { padding-top: 0; }
+  .step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--cs-orange);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-content { flex: 1; padding-top: 3px; }
+  .step-content p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--cs-text);
+  }
+  .step-content p strong { color: var(--cs-navy); font-weight: 600; }
+  .step-content .hint {
+    font-size: 13px;
+    color: var(--cs-text-lighter);
+    margin-top: 4px;
+  }
 
-  /* Bookmark button */
-  .bookmark-wrap { text-align: center; padding: 28px 0; }
-  .bookmark-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: #ff6b2b; color: white; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: grab; transition: all 0.15s; box-shadow: 0 2px 8px rgba(255,107,43,0.25); }
-  .bookmark-btn:hover { background: #e85d1f; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,107,43,0.3); }
+  /* Bookmark CTA */
+  .cta-section {
+    background: var(--cs-bg-alt);
+    border: 1px solid var(--cs-border);
+    border-radius: 12px;
+    padding: 36px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .cta-section p {
+    font-size: 14px;
+    color: var(--cs-text-light);
+    margin-bottom: 20px;
+  }
+  .bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 36px;
+    background: var(--cs-orange);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: grab;
+    transition: all 0.2s;
+    box-shadow: 0 2px 10px rgba(240,92,55,0.2);
+  }
+  .bookmark-btn:hover {
+    background: var(--cs-orange-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(240,92,55,0.3);
+  }
   .bookmark-btn:active { cursor: grabbing; transform: translateY(0); }
   .bookmark-btn svg { flex-shrink: 0; }
-  .drag-hint { font-size: 13px; color: #9ca3af; margin-top: 10px; }
+  .drag-hint {
+    font-size: 12px;
+    color: var(--cs-text-lighter);
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
 
   /* Feature grid */
-  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .feat { display: flex; gap: 12px; align-items: flex-start; }
-  .feat-icon { width: 36px; height: 36px; border-radius: 8px; background: #fff4ef; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .feat-label { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
-  .feat-value { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .feat {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 18px 20px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .feat:nth-child(odd) { border-right: 1px solid #f3f4f6; }
+  .feat:nth-last-child(-n+2) { border-bottom: none; }
+  .feat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fef3f0, #fde8e2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .feat-label { font-size: 12px; color: var(--cs-text-lighter); margin-bottom: 2px; }
+  .feat-value { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--cs-navy); }
+
+  /* Output tags */
+  .output-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .tag {
+    background: var(--cs-bg-alt);
+    border: 1px solid var(--cs-border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    color: var(--cs-text);
+    letter-spacing: -0.2px;
+  }
 
   /* Note */
-  .note { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; margin-top: 20px; display: flex; gap: 10px; align-items: flex-start; }
+  .note {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
   .note svg { flex-shrink: 0; margin-top: 1px; }
-  .note p { font-size: 13px; color: #92400e; line-height: 1.5; }
+  .note p { font-size: 13px; color: #78570a; line-height: 1.6; }
+  .note strong { color: #6b4c08; }
 
-  /* Columns */
-  .columns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .col-tag { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; padding: 3px 8px; font-size: 12px; font-family: 'SF Mono', Consolas, monospace; color: #4b5563; }
+  /* Footer */
+  .footer {
+    background: var(--cs-navy);
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .footer-logo { height: 24px; margin-bottom: 10px; filter: brightness(0) invert(1); }
+  .footer p { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+  .footer a:hover { color: rgba(255,255,255,0.8); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 28px; }
+    .features { grid-template-columns: 1fr; }
+    .feat:nth-child(odd) { border-right: none; }
+    .card { padding: 20px 22px; }
+    .cta-section { padding: 28px 20px; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <div class="header">
-    <img class="logo" src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" />
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <img class="hero-logo" src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" />
     <h1>Engagement Export</h1>
-    <p>Export student tab engagement data from your CloudShare training experiences to CSV in one click.</p>
+    <p>Export student tab engagement data from your CloudShare training experiences to CSV — in one click.</p>
   </div>
+</div>
+
+<!-- Main -->
+<div class="main">
 
   <!-- Install -->
+  <div class="section-label">Setup</div>
   <div class="card">
-    <div class="card-title">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 13h14" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/></svg>
-      Install
-    </div>
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-text">Make sure your <strong>bookmarks bar</strong> is visible<br><span style="color:#9ca3af;font-size:13px">Chrome: Ctrl+Shift+B &nbsp;|&nbsp; Safari: View &rarr; Show Favorites Bar</span></div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-text"><strong>Drag the button below</strong> to your bookmarks bar</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <p>Make sure your <strong>bookmarks bar</strong> is visible</p>
+          <div class="hint">Chrome: Ctrl+Shift+B &nbsp;&middot;&nbsp; Safari: View &rarr; Show Favorites Bar</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <p><strong>Drag the button below</strong> to your bookmarks bar</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="bookmark-wrap">
+  <!-- Bookmark CTA -->
+  <div class="cta-section">
+    <p>Drag this button to your bookmarks bar to install</p>
     <a class="bookmark-btn" href="javascript:void(fetch('https://zach807.github.io/cloudshare-tools/engagement-export/export.js').then(function(r){return r.text()}).then(function(t){eval(t)}))">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M16 11v4a1 1 0 01-1 1H3a1 1 0 01-1-1v-4M9 2v10M5.5 8.5L9 12l3.5-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M16 11v4a1 1 0 01-1 1H3a1 1 0 01-1-1v-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 2v10M5.5 8.5L9 12l3.5-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       CS Engagement Export
     </a>
-    <div class="drag-hint">Drag this button to your bookmarks bar</div>
+    <div class="drag-hint">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M3 9l4 4 4-4" stroke="#9ca3af" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Drag &amp; drop onto your bookmarks bar
+    </div>
   </div>
 
   <!-- Usage -->
+  <div class="section-label">How to Use</div>
   <div class="card">
-    <div class="card-title">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-5 3 3 5-7" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      How to Use
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-text">Log into <strong>accelerate.cloudshare.com</strong> or <strong>use.cloudshare.com</strong></div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-text">Click the <strong>CS Engagement Export</strong> bookmark</div>
-    </div>
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-text">Select your date range and filters, then click <strong>Export to CSV</strong></div>
-    </div>
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-text">The CSV file will download automatically when complete</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <p>Log into <strong>accelerate.cloudshare.com</strong> or <strong>use.cloudshare.com</strong></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <p>Click the <strong>CS Engagement Export</strong> bookmark in your bookmarks bar</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <p>Select your date range and filters, then click <strong>Export to CSV</strong></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <p>Your CSV file will download automatically when the export completes</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Features -->
-  <div class="card">
-    <div class="card-title">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="#ff6b2b" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="#ff6b2b" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="#ff6b2b" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="#ff6b2b" stroke-width="1.5"/></svg>
-      Features
-    </div>
+  <div class="section-label">Features</div>
+  <div class="card" style="padding:0;overflow:hidden">
     <div class="features">
       <div class="feat">
         <div class="feat-icon">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1v16M1 9h16" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#F05C37" stroke-width="1.4"/><path d="M6 1v3M12 1v3" stroke="#F05C37" stroke-width="1.4" stroke-linecap="round"/></svg>
         </div>
         <div>
           <div class="feat-label">Platforms</div>
@@ -127,16 +361,16 @@
       </div>
       <div class="feat">
         <div class="feat-icon">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#ff6b2b" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#F05C37" stroke-width="1.4"/><path d="M9 5v4l3 2" stroke="#F05C37" stroke-width="1.4" stroke-linecap="round"/></svg>
         </div>
         <div>
-          <div class="feat-label">Speed</div>
+          <div class="feat-label">Performance</div>
           <div class="feat-value">15 parallel requests</div>
         </div>
       </div>
       <div class="feat">
         <div class="feat-icon">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="1" stroke="#ff6b2b" stroke-width="1.5"/><path d="M2 7h14M6 3v-1M12 3v-1" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="1" stroke="#F05C37" stroke-width="1.4"/><path d="M2 7h14M6 3V1M12 3V1" stroke="#F05C37" stroke-width="1.4" stroke-linecap="round"/></svg>
         </div>
         <div>
           <div class="feat-label">Filtering</div>
@@ -145,7 +379,7 @@
       </div>
       <div class="feat">
         <div class="feat-icon">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 9l5 5L17 3" stroke="#ff6b2b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9l5 5L16 4" stroke="#F05C37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div>
           <div class="feat-label">Reliability</div>
@@ -156,33 +390,38 @@
   </div>
 
   <!-- Output -->
+  <div class="section-label">CSV Output</div>
   <div class="card">
-    <div class="card-title">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 1H3a1 1 0 00-1 1v12a1 1 0 001 1h10a1 1 0 001-1V5L10 1z" stroke="#ff6b2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 1v4h4" stroke="#ff6b2b" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      CSV Output
-    </div>
-    <div class="columns">
-      <span class="col-tag">training_name</span>
-      <span class="col-tag">class_id</span>
-      <span class="col-tag">experience_id</span>
-      <span class="col-tag">platform</span>
-      <span class="col-tag">kind</span>
-      <span class="col-tag">status</span>
-      <span class="col-tag">start_date</span>
-      <span class="col-tag">student_name</span>
-      <span class="col-tag">student_email</span>
-      <span class="col-tag">date</span>
-      <span class="col-tag">tab_name</span>
-      <span class="col-tag">active_seconds</span>
-      <span class="col-tag">active_minutes</span>
+    <div class="output-grid">
+      <span class="tag">training_name</span>
+      <span class="tag">class_id</span>
+      <span class="tag">experience_id</span>
+      <span class="tag">platform</span>
+      <span class="tag">kind</span>
+      <span class="tag">status</span>
+      <span class="tag">start_date</span>
+      <span class="tag">student_name</span>
+      <span class="tag">student_email</span>
+      <span class="tag">date</span>
+      <span class="tag">tab_name</span>
+      <span class="tag">active_seconds</span>
+      <span class="tag">active_minutes</span>
     </div>
   </div>
 
+  <!-- Note -->
   <div class="note">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zM8 5v3M8 10.5v.5" stroke="#d97706" stroke-width="1.5" stroke-linecap="round"/></svg>
-    <p><strong>Large accounts</strong> with 1,000+ training classes may take 3-5 minutes to export. Keep the browser tab open while the export runs. You can open the developer console (F12) to see detailed progress.</p>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#d97706" stroke-width="1.4"/><path d="M9 6v3.5M9 11.5v.5" stroke="#d97706" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <p><strong>Large accounts</strong> with 1,000+ classes may take 3–5 minutes. Keep the tab open while the export runs. Open the developer console (F12) to view detailed progress.</p>
   </div>
 
 </div>
+
+<!-- Footer -->
+<div class="footer">
+  <img class="footer-logo" src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" />
+  <p>&copy; 2026 CloudShare &nbsp;&middot;&nbsp; <a href="https://www.cloudshare.com/privacy-policy">Privacy</a> &nbsp;&middot;&nbsp; <a href="https://support.cloudshare.com">Support</a></p>
+</div>
+
 </body>
 </html>
