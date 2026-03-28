@@ -104,7 +104,7 @@
 
     <div class="card">
       <div class="section-label">Sample output <span></span></div>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">The export ZIP contains three CSV files:</p>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">The export ZIP contains CSV files based on your selected scope:</p>
       <div style="overflow-x:auto;margin-bottom:14px">
         <table style="width:100%;border-collapse:collapse;font-size:11px">
           <thead>
@@ -123,20 +123,25 @@
           </tbody>
         </table>
       </div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:140px">
-          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:3px">Daily Detail.csv</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="padding:10px 12px;background:#f8f8f8;border-radius:8px">
+          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:2px">Daily Detail.csv</div>
           <div style="font-size:11px;color:#9ca3af">One row per student per tab per day</div>
         </div>
-        <div style="flex:1;min-width:140px">
-          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:3px">Student Summary.csv</div>
+        <div style="padding:10px 12px;background:#f8f8f8;border-radius:8px">
+          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:2px">Student Summary.csv</div>
           <div style="font-size:11px;color:#9ca3af">Aggregated totals per student per class</div>
         </div>
-        <div style="flex:1;min-width:140px">
-          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:3px">Export Info.csv</div>
+        <div style="padding:10px 12px;background:#f8f8f8;border-radius:8px">
+          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:2px">Student Totals.csv</div>
+          <div style="font-size:11px;color:#9ca3af">Total time, active days, date range per student</div>
+        </div>
+        <div style="padding:10px 12px;background:#f8f8f8;border-radius:8px">
+          <div style="font-size:11px;font-weight:600;color:#242D37;margin-bottom:2px">Export Info.csv</div>
           <div style="font-size:11px;color:#9ca3af">Filters used, date, account, row counts</div>
         </div>
       </div>
+      <p style="font-size:11px;color:#b0b7c0;margin-top:10px">Files included vary by export scope. Full engagement includes Daily Detail + Student Summary. Student totals includes Student Totals only.</p>
     </div>
 
     <div class="card">
