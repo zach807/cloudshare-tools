@@ -4,681 +4,197 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CloudShare Analytics Export</title>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Figtree','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8f8f8; color:#242D37; }
+    body { font-family:'Figtree',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8f8f8; color:#242D37; }
     .hero { background:linear-gradient(135deg,#242D37 0%,#2d3a47 50%,#3a4a5c 100%); padding:60px 20px 50px; text-align:center; }
     .hero-logo { margin-bottom:16px; }
     .hero-logo img { height:32px; }
     .hero h1 { font-size:28px; font-weight:700; color:white; margin-bottom:8px; letter-spacing:-0.5px; }
     .hero p { font-size:15px; color:rgba(255,255,255,0.7); max-width:560px; margin:0 auto; line-height:1.5; }
-    .container { max-width:720px; margin:-30px auto 40px; padding:0 20px; }
+    .container { max-width:680px; margin:-30px auto 40px; padding:0 20px; }
     .card { background:white; border-radius:16px; padding:28px 32px; box-shadow:0 4px 24px rgba(0,0,0,0.08); margin-bottom:20px; }
     .section-label { font-size:10px; font-weight:600; color:#F05C37; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     .section-label span { flex:1; height:1px; background:#e8eaed; }
     .step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
-    .step:last-child { margin-bottom:0; }
     .step-num { width:28px; height:28px; background:#F05C37; color:white; border-radius:50%; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
     .step-content h3 { font-size:15px; font-weight:600; margin-bottom:4px; }
     .step-content p { font-size:13px; color:#6b7280; line-height:1.5; }
-    .step-content a { color:#F05C37; font-weight:500; text-decoration:none; }
-    .step-content a:hover { text-decoration:underline; }
-    .step-content code { background:#f3f4f6; padding:1px 6px; border-radius:4px; font-size:12px; font-family:monospace; color:#374151; }
-    .divider { height:1px; background:#e8eaed; margin:20px 0; }
+    .cta-section { text-align:center; margin:20px 0 8px; }
+    .cta-section p { font-size:13px; color:#6b7280; margin-bottom:14px; }
+    .bookmark-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; background:#F05C37; color:white; text-decoration:none; border-radius:10px; font-size:15px; font-weight:600; font-family:inherit; cursor:grab; transition:all 0.2s; box-shadow:0 2px 8px rgba(240,92,55,0.3); user-select:none; }
+    .bookmark-btn:hover { background:#d94f2e; box-shadow:0 4px 16px rgba(240,92,55,0.4); transform:translateY(-1px); }
+    .bookmark-btn:active { cursor:grabbing; }
+    .note { font-size:12px; color:#9ca3af; margin-top:12px; line-height:1.5; text-align:center; }
     .exports-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px; }
-    .export-item { padding:14px 16px; background:#f8f8f8; border-radius:10px; border-left:3px solid #F05C37; }
-    .export-item h4 { font-size:13px; font-weight:600; margin-bottom:3px; color:#242D37; }
-    .export-item p { font-size:11px; color:#6b7280; line-height:1.4; }
-    .export-item .filename { font-size:11px; color:#F05C37; font-weight:600; font-family:monospace; margin-top:4px; }
-    .script-box { background:#1e2a38; border-radius:12px; padding:20px; margin-top:4px; position:relative; }
-    .script-box pre { color:#e2e8f0; font-size:12px; font-family:'Courier New',Consolas,monospace; white-space:pre-wrap; line-height:1.6; overflow-x:auto; }
-    .copy-btn { position:absolute; top:12px; right:12px; padding:6px 14px; background:#F05C37; color:white; border:none; border-radius:7px; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; transition:all 0.2s; }
-    .copy-btn:hover { background:#d94f2e; }
-    .copy-btn.copied { background:#10b981; }
-    .note { font-size:12px; color:#9ca3af; margin-top:12px; line-height:1.6; }
-    .note strong { color:#6b7280; }
-    .badge { display:inline-block; padding:2px 8px; background:rgba(240,92,55,0.1); color:#F05C37; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-    .warning-box { background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:16px; }
-    .warning-box p { font-size:13px; color:#92400e; line-height:1.5; }
-    .warning-box strong { color:#7c2d12; }
-    @media(max-width:540px) { .exports-grid { grid-template-columns:1fr; } .card { padding:20px; } }
+    .export-card { padding:14px 16px; background:#f8f8f8; border-radius:10px; border-left:3px solid #F05C37; }
+    .export-card h4 { font-size:13px; font-weight:600; color:#242D37; margin-bottom:4px; }
+    .export-card .filename { font-size:10px; font-weight:600; color:#F05C37; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; font-family:monospace; }
+    .export-card p { font-size:11px; color:#6b7280; line-height:1.5; }
+    .faq-item { margin-bottom:16px; }
+    .faq-item:last-child { margin-bottom:0; }
+    .faq-q { font-size:13px; font-weight:600; color:#242D37; margin-bottom:3px; }
+    .faq-a { font-size:13px; color:#6b7280; line-height:1.5; }
+
+    @keyframes dragDemo {
+      0%, 15%   { bottom:2px; left:50%; transform:translateX(-50%) scale(1); opacity:1; }
+      40%, 55%  { bottom:44px; left:38%; transform:translateX(-50%) scale(0.95); opacity:0.9; }
+      60%       { bottom:44px; left:38%; transform:translateX(-50%) scale(0.9); opacity:0; }
+      65%, 100% { bottom:2px; left:50%; transform:translateX(-50%) scale(1); opacity:1; }
+    }
+    @media(max-width:520px) { .exports-grid { grid-template-columns:1fr; } .card { padding:20px; } }
   </style>
 </head>
 <body>
-
-<div class="hero">
-  <div class="hero-logo">
-    <img src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" onerror="this.style.display='none'">
-  </div>
-  <h1>Analytics Export Tool</h1>
-  <p>Export all data from CloudShare's Sisense BI dashboards — training, sales enablement, experiences, resources, environments, and project members — as a single ZIP of CSVs.</p>
-</div>
-
-<div class="container">
-
-  <!-- What gets exported -->
-  <div class="card">
-    <div class="section-label">What You'll Get <span></span></div>
-    <div class="exports-grid">
-      <div class="export-item">
-        <h4>📚 Training Analytics</h4>
-        <p>Course data, student records, participation, session time, drop-off rates</p>
-        <div class="filename">training_analytics.csv</div>
-      </div>
-      <div class="export-item">
-        <h4>💼 Sales Enablement</h4>
-        <p>POC opportunities, status, SE ownership, usage hours, disk/GB metrics</p>
-        <div class="filename">sales_enablement.csv</div>
-      </div>
-      <div class="export-item">
-        <h4>🎯 Sales Experiences</h4>
-        <p>Experience names, participants, status, active time, start/end dates</p>
-        <div class="filename">sales_experiences.csv</div>
-      </div>
-      <div class="export-item">
-        <h4>⚙️ Resource Consumption</h4>
-        <p>Daily billing, project/blueprint/env breakdown, compute hours, storage</p>
-        <div class="filename">resources.csv</div>
-      </div>
-      <div class="export-item">
-        <h4>🖥️ Environments</h4>
-        <p>Environment data from CloudShareEnvironmentsCube (auto-discovers fields)</p>
-        <div class="filename">environments.csv</div>
-      </div>
-      <div class="export-item">
-        <h4>👥 Project Members</h4>
-        <p>Project member usage from ProjectMemberUsageCube (auto-discovers fields)</p>
-        <div class="filename">project_members.csv</div>
-      </div>
-    </div>
+  <div class="hero">
+    <div class="hero-logo"><img src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" onerror="this.style.display='none'"></div>
+    <h1>Analytics Export Tool</h1>
+    <p>Export all 7 analytics datasets from your CloudShare BI dashboard as a ZIP of CSVs ? straight from your browser.</p>
   </div>
 
-  <!-- How to use -->
-  <div class="card">
-    <div class="section-label">How to Use <span></span></div>
+  <div class="container">
+    <!-- Setup Card -->
+    <div class="card">
+      <div class="section-label">Setup <span></span></div>
 
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <h3>Open CloudShare Analytics</h3>
-        <p>Log into <a href="https://use.cloudshare.com" target="_blank">CloudShare Accelerate</a>, then click <strong>Analytics</strong> in the navigation. This opens <a href="https://bi.cloudshare.com" target="_blank">bi.cloudshare.com</a> in a new tab — stay on that tab.</p>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Show your bookmarks bar</h3>
+          <p>Press <strong>Ctrl+Shift+B</strong> (Windows) or <strong>Cmd+Shift+B</strong> (Mac) to toggle it on.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Drag the button to your bookmarks bar</h3>
+          <p>Grab the orange button below and drag it up into your bookmarks bar. It'll appear as a clickable bookmark.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Navigate to CloudShare Analytics, then click it</h3>
+          <p>Go to <a href="https://bi.cloudshare.com" target="_blank" style="color:#F05C37;font-weight:500">bi.cloudshare.com</a> (or click the bookmark anywhere ? it will redirect you if needed). Once there, click the bookmark to launch the export.</p>
+        </div>
+      </div>
+
+      <!-- Drag demo -->
+      <div style="text-align:center;margin:10px 0 0">
+        <div style="position:relative;height:80px;max-width:340px;margin:0 auto 14px">
+          <div style="position:absolute;top:0;left:0;right:0;height:34px;background:#f0f0f0;border-radius:6px 6px 0 0;display:flex;align-items:center;padding:0 10px;gap:6px">
+            <div style="width:7px;height:7px;background:#d1d5db;border-radius:50%"></div>
+            <div style="width:7px;height:7px;background:#d1d5db;border-radius:50%"></div>
+            <div style="width:7px;height:7px;background:#d1d5db;border-radius:50%"></div>
+            <div style="flex:1;height:16px;background:#e5e7eb;border-radius:3px;margin-left:6px"></div>
+          </div>
+          <div style="position:absolute;top:34px;left:0;right:0;height:28px;background:#e8eaed;border-radius:0 0 6px 6px;display:flex;align-items:center;padding:0 8px;gap:5px;border-top:1px solid #d1d5db">
+            <span style="padding:2px 8px;background:#fff;border-radius:3px;font-size:9px;color:#9ca3af">Bookmarks</span>
+            <span style="padding:2px 8px;background:#fff;border-radius:3px;font-size:9px;color:#9ca3af">Other</span>
+            <span style="padding:2px 8px;border-radius:3px;font-size:9px;border:1.5px dashed #F05C37;color:#F05C37;background:rgba(240,92,55,0.05)">Drop here ?</span>
+          </div>
+          <div style="position:absolute;bottom:2px;left:50%;padding:4px 14px;background:#F05C37;color:white;border-radius:5px;font-size:9px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(240,92,55,0.35);animation:dragDemo 3.5s ease-in-out infinite;pointer-events:none;transform:translateX(-50%)">CS Analytics</div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <p>Drag this button into your bookmarks bar:</p>
+        <a class="bookmark-btn" id="cs-analytics-bookmarklet" href="javascript:(function%20()%20%7B%20'use%20strict'%3B%20function%20buildZip(files)%20%7B%20function%20crc32(buf)%20%7B%20var%20tbl%20%3D%20buildZip._t%3B%20if%20(!tbl)%20%7B%20tbl%20%3D%20new%20Uint32Array(256)%3B%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20256%3B%20i%2B%2B)%20%7B%20var%20c%20%3D%20i%3B%20for%20(var%20k%20%3D%200%3B%20k%20%3C%208%3B%20k%2B%2B)%20c%20%3D%20(c%20%26%201)%20%3F%20(0xEDB88320%20%5E%20(c%20%3E%3E%3E%201))%20%3A%20(c%20%3E%3E%3E%201)%3B%20tbl%5Bi%5D%20%3D%20c%3B%20%7D%20buildZip._t%20%3D%20tbl%3B%20%7D%20var%20r%20%3D%200xFFFFFFFF%3B%20for%20(var%20j%20%3D%200%3B%20j%20%3C%20buf.length%3B%20j%2B%2B)%20r%20%3D%20tbl%5B(r%20%5E%20buf%5Bj%5D)%20%26%200xFF%5D%20%5E%20(r%20%3E%3E%3E%208)%3B%20return%20(r%20%5E%200xFFFFFFFF)%20%3E%3E%3E%200%3B%20%7D%20function%20u32(n)%20%7B%20return%20%5Bn%20%26%200xFF%2C%20(n%20%3E%3E%208)%20%26%200xFF%2C%20(n%20%3E%3E%2016)%20%26%200xFF%2C%20(n%20%3E%3E%2024)%20%26%200xFF%5D%3B%20%7D%20function%20u16(n)%20%7B%20return%20%5Bn%20%26%200xFF%2C%20(n%20%3E%3E%208)%20%26%200xFF%5D%3B%20%7D%20function%20strBytes(s)%20%7B%20var%20out%20%3D%20%5B%5D%3B%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20s.length%3B%20i%2B%2B)%20%7B%20var%20c%20%3D%20s.charCodeAt(i)%3B%20if%20(c%20%3C%20128)%20out.push(c)%3B%20else%20if%20(c%20%3C%202048)%20out.push(0xC0%20%7C%20(c%20%3E%3E%206)%2C%200x80%20%7C%20(c%20%26%2063))%3B%20else%20out.push(0xE0%20%7C%20(c%20%3E%3E%2012)%2C%200x80%20%7C%20((c%20%3E%3E%206)%20%26%2063)%2C%200x80%20%7C%20(c%20%26%2063))%3B%20%7D%20return%20new%20Uint8Array(out)%3B%20%7D%20var%20localHeaders%20%3D%20%5B%5D%2C%20centralDir%20%3D%20%5B%5D%2C%20offset%20%3D%200%3B%20for%20(var%20fi%20%3D%200%3B%20fi%20%3C%20files.length%3B%20fi%2B%2B)%20%7B%20var%20f%20%3D%20files%5Bfi%5D%3B%20var%20nameBytes%20%3D%20strBytes(f.name)%3B%20var%20crc%20%3D%20crc32(f.data)%3B%20var%20sz%20%3D%20f.data.length%3B%20var%20lh%20%3D%20new%20Uint8Array(30%20%2B%20nameBytes.length)%3B%20var%20lhArr%20%3D%20%5B0x50%2C%200x4B%2C%200x03%2C%200x04%2C%20%2F%2F%20sig%2020%2C%200%2C%20%2F%2F%20version%20needed%200%2C%208%2C%20%2F%2F%20flags%20(UTF-8)%200%2C%200%2C%20%2F%2F%20compression%20(stored)%200%2C%200%2C%200%2C%200%2C%20%2F%2F%20mod%20time%2Fdate%20%5D.concat(u32(crc)).concat(u32(sz)).concat(u32(sz)).concat(u16(nameBytes.length)).concat(%5B0%2C%200%5D)%3B%20for%20(var%20x%20%3D%200%3B%20x%20%3C%20lhArr.length%3B%20x%2B%2B)%20lh%5Bx%5D%20%3D%20lhArr%5Bx%5D%3B%20lh.set(nameBytes%2C%2030)%3B%20localHeaders.push(%7B%20lh%3A%20lh%2C%20data%3A%20f.data%2C%20offset%3A%20offset%20%7D)%3B%20var%20cd%20%3D%20new%20Uint8Array(46%20%2B%20nameBytes.length)%3B%20var%20cdArr%20%3D%20%5B0x50%2C%200x4B%2C%200x01%2C%200x02%2C%20%2F%2F%20sig%2020%2C%200%2C%20%2F%2F%20version%20made%20by%2020%2C%200%2C%20%2F%2F%20version%20needed%200%2C%208%2C%20%2F%2F%20flags%200%2C%200%2C%20%2F%2F%20compression%200%2C%200%2C%200%2C%200%2C%20%2F%2F%20mod%20time%2Fdate%20%5D.concat(u32(crc)).concat(u32(sz)).concat(u32(sz))%20.concat(u16(nameBytes.length)).concat(%5B0%2C%200%2C%200%2C%200%2C%200%2C%200%2C%200%2C%200%2C%200%2C%200%5D)%20.concat(u32(offset))%3B%20for%20(var%20y%20%3D%200%3B%20y%20%3C%20cdArr.length%3B%20y%2B%2B)%20cd%5By%5D%20%3D%20cdArr%5By%5D%3B%20cd.set(nameBytes%2C%2046)%3B%20centralDir.push(cd)%3B%20offset%20%2B%3D%20lh.length%20%2B%20f.data.length%3B%20%7D%20var%20cdSize%20%3D%200%3B%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20centralDir.length%3B%20i%2B%2B)%20cdSize%20%2B%3D%20centralDir%5Bi%5D.length%3B%20var%20eocd%20%3D%20new%20Uint8Array(22)%3B%20var%20eocdArr%20%3D%20%5B0x50%2C%200x4B%2C%200x05%2C%200x06%2C%200%2C%200%2C%200%2C%200%5D%20.concat(u16(files.length)).concat(u16(files.length))%20.concat(u32(cdSize)).concat(u32(offset)).concat(%5B0%2C%200%5D)%3B%20for%20(var%20z%20%3D%200%3B%20z%20%3C%20eocdArr.length%3B%20z%2B%2B)%20eocd%5Bz%5D%20%3D%20eocdArr%5Bz%5D%3B%20var%20total%20%3D%20offset%20%2B%20cdSize%20%2B%2022%3B%20var%20out%20%3D%20new%20Uint8Array(total)%3B%20var%20pos%20%3D%200%3B%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20localHeaders.length%3B%20i%2B%2B)%20%7B%20out.set(localHeaders%5Bi%5D.lh%2C%20pos)%3B%20pos%20%2B%3D%20localHeaders%5Bi%5D.lh.length%3B%20out.set(localHeaders%5Bi%5D.data%2C%20pos)%3B%20pos%20%2B%3D%20localHeaders%5Bi%5D.data.length%3B%20%7D%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20centralDir.length%3B%20i%2B%2B)%20%7B%20out.set(centralDir%5Bi%5D%2C%20pos)%3B%20pos%20%2B%3D%20centralDir%5Bi%5D.length%3B%20%7D%20out.set(eocd%2C%20pos)%3B%20return%20out%3B%20%7D%20function%20csvEscape(v)%20%7B%20var%20s%20%3D%20v%20%3D%3D%20null%20%3F%20''%20%3A%20String(v)%3B%20if%20(s.indexOf('%2C')%20!%3D%3D%20-1%20%7C%7C%20s.indexOf('%22')%20!%3D%3D%20-1%20%7C%7C%20s.indexOf('%5Cn')%20!%3D%3D%20-1)%20%7B%20return%20'%22'%20%2B%20s.replace(%2F%22%2Fg%2C%20'%22%22')%20%2B%20'%22'%3B%20%7D%20return%20s%3B%20%7D%20function%20rowsToCsv(rows)%20%7B%20return%20rows.map(function%20(r)%20%7B%20return%20r.map(csvEscape).join('%2C')%3B%20%7D).join('%5Cn')%3B%20%7D%20function%20strToBytes(s)%20%7B%20var%20arr%20%3D%20%5B%5D%3B%20for%20(var%20i%20%3D%200%3B%20i%20%3C%20s.length%3B%20i%2B%2B)%20%7B%20var%20c%20%3D%20s.charCodeAt(i)%3B%20if%20(c%20%3C%20128)%20arr.push(c)%3B%20else%20if%20(c%20%3C%202048)%20arr.push(0xC0%20%7C%20(c%20%3E%3E%206)%2C%200x80%20%7C%20(c%20%26%2063))%3B%20else%20arr.push(0xE0%20%7C%20(c%20%3E%3E%2012)%2C%200x80%20%7C%20((c%20%3E%3E%206)%20%26%2063)%2C%200x80%20%7C%20(c%20%26%2063))%3B%20%7D%20return%20new%20Uint8Array(arr)%3B%20%7D%20if%20(window.location.hostname%20!%3D%3D%20'bi.cloudshare.com')%20%7B%20if%20(confirm('This%20bookmarklet%20must%20run%20on%20bi.cloudshare.com.%5Cn%5CnNavigate%20there%20now%3F'))%20%7B%20window.location.href%20%3D%20'https%3A%2F%2Fuse.cloudshare.com%2FEnt%2FBI.mvc%2FSisenseAuth%2F%3Furl%3Ddashboards%2F652bd61cbe28a68c906f246a'%3B%20%7D%20return%3B%20%7D%20var%20CUBES%20%3D%20%5B%20%7B%20id%3A%20'cost_control'%2C%20label%3A%20'Cost%20Control'%2C%20cube%3A%20'Cost_Control'%2C%20table%3A%20'UserHoursBreakdown'%2C%20filename%3A%20'cost_control.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'Use%20Case'%2C%20dim%3A%20'%5BUserHoursBreakdown.Use%20Case%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'cost'%2C%20dim%3A%20'%5BUserHoursBreakdown.cost%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'Project%20Name'%2C%20dim%3A%20'%5BUserHoursBreakdown.Project%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Course%20Name'%2C%20dim%3A%20'%5BUserHoursBreakdown.Course%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Course%20Id%20(Hashed)'%2C%20dim%3A%20'%5BUserHoursBreakdown.Course%20Id%20(Hashed)%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'Policy%20Name'%2C%20dim%3A%20'%5BUserHoursBreakdown.Project%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Cost'%2C%20dim%3A%20'%5BUserHoursBreakdown.Cost%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'Usage%20Date'%2C%20dim%3A%20'%5BUserHoursBreakdown.Usage%20Date%20(Calendar)%5D'%2C%20datatype%3A%20'datetime'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'user_hours_utilization'%2C%20label%3A%20'User%20Hour%20Utilization'%2C%20cube%3A%20'User_Hour_Utilization'%2C%20table%3A%20'UserHoursUtilization'%2C%20filename%3A%20'user_hours_utilization.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'Course%20Name'%2C%20dim%3A%20'%5BUserHoursUtilization.Course%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'User%20Hour%20Quantity'%2C%20dim%3A%20'%5BUserHoursUtilization.User%20Hour%20Quantity%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'User%20Email'%2C%20dim%3A%20'%5BUserHoursUtilization.Project%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Usage%20Date'%2C%20dim%3A%20'%5BUserHoursUtilization.Usage%20Date%20(Calendar)%5D'%2C%20datatype%3A%20'datetime'%20%7D%2C%20%7B%20col%3A%20'Class%20Type'%2C%20dim%3A%20'%5BUserHoursUtilization.Class%20Type%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'User%20Role'%2C%20dim%3A%20'%5BUserHoursUtilization.User%20Role%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Project%20Name'%2C%20dim%3A%20'%5BUserHoursUtilization.Project%20Name%5D'%2C%20datatype%3A%20'text'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'experiences_participation'%2C%20label%3A%20'Experiences%20%26%20Participation'%2C%20cube%3A%20'Experiences_And_Participation'%2C%20table%3A%20'ExperienceAndParticipants'%2C%20filename%3A%20'experiences_participation.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'ProjectName'%2C%20dim%3A%20'%5BExperienceAndParticipants.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ExperienceType'%2C%20dim%3A%20'%5BExperienceAndParticipants.ExperienceType%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'usage_date'%2C%20dim%3A%20'%5BExperienceAndParticipants.usage_date%20(Calendar)%5D'%2C%20datatype%3A%20'datetime'%20%7D%2C%20%7B%20col%3A%20'geolocationCountry'%2C%20dim%3A%20'%5BExperienceAndParticipants.geolocationCountry%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'HashedParticipantId'%2C%20dim%3A%20'%5BExperienceAndParticipants.HashedParticipantId%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'max_participtions_in_experience'%2C%20dim%3A%20'%5BExperienceAndParticipants.max_participtions_in_experience%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'HashedExperienceId'%2C%20dim%3A%20'%5BExperienceAndParticipants.HashedExperienceId%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'ExperienceName'%2C%20dim%3A%20'%5BExperienceAndParticipants.ExperienceName%5D'%2C%20datatype%3A%20'text'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'attendance_completion'%2C%20label%3A%20'Attendance%20%26%20Completion'%2C%20cube%3A%20'Attendance_And_Completion'%2C%20table%3A%20'AttendanceAndCompletion'%2C%20filename%3A%20'attendance_completion.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'ParticipationTimeBucket'%2C%20dim%3A%20'%5BAttendanceAndCompletion.ParticipationTimeBucket%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ExperienceType'%2C%20dim%3A%20'%5BAttendanceAndCompletion.ExperienceType%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'HashedParticipantId'%2C%20dim%3A%20'%5BAttendanceAndCompletion.HashedParticipantId%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'DropOffBucket'%2C%20dim%3A%20'%5BAttendanceAndCompletion.DropOffBucket%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ProjectName'%2C%20dim%3A%20'%5BAttendanceAndCompletion.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ParticipantName'%2C%20dim%3A%20'%5BAttendanceAndCompletion.ParticipantName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ExperienceName'%2C%20dim%3A%20'%5BAttendanceAndCompletion.ExperienceName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'UserHourAmount'%2C%20dim%3A%20'%5BAttendanceAndCompletion.UserHourAmount%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'IsAttended'%2C%20dim%3A%20'%5BAttendanceAndCompletion.IsAttended%5D'%2C%20datatype%3A%20'text'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'blueprints_environments'%2C%20label%3A%20'Blueprints%20%26%20Environments'%2C%20cube%3A%20'Blueprint_And_Environment'%2C%20table%3A%20'BlueprintAndEnvironment'%2C%20filename%3A%20'blueprints_environments.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'HashedEnvId'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.HashedEnvId%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'EnvName'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.EnvName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'Blueprint'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.Blueprint%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ProjectName'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'EnvCreateDate'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.EnvCreateDate%5D'%2C%20datatype%3A%20'datetime'%20%7D%2C%20%7B%20col%3A%20'Owner'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.Owner%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'TotalDiskGBH'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.TotalDiskGBH%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'TotalRAMGBH'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.TotalRAMGBH%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'EnvRunTimeHours'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.EnvRunTimeHours%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'TotalUserHours'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.TotalUserHours%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'EnvInactiveTimeHours'%2C%20dim%3A%20'%5BBlueprintAndEnvironment.EnvInactiveTimeHours%5D'%2C%20datatype%3A%20'numeric'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'resource_utilization'%2C%20label%3A%20'Resource%20Utilization'%2C%20cube%3A%20'Resource_Utilization'%2C%20table%3A%20'ResourceUtilization'%2C%20filename%3A%20'resource_utilization.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'ProjectName'%2C%20dim%3A%20'%5BResourceUtilization.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'TotalDiskGBH'%2C%20dim%3A%20'%5BResourceUtilization.TotalDiskGBH%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'SourceNew'%2C%20dim%3A%20'%5BResourceUtilization.SourceNew%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'TotalMemoryGBH'%2C%20dim%3A%20'%5BResourceUtilization.TotalMemoryGBH%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'Date'%2C%20dim%3A%20'%5BResourceUtilization.Date%20(Calendar)%5D'%2C%20datatype%3A%20'datetime'%20%7D%2C%20%7B%20col%3A%20'RegionName'%2C%20dim%3A%20'%5BResourceUtilization.RegionName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'EnvName'%2C%20dim%3A%20'%5BResourceUtilization.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%20%5D%20%7D%2C%20%7B%20id%3A%20'project_members_activity'%2C%20label%3A%20'Project%20Members%20Activity'%2C%20cube%3A%20'Project_Members_Activity'%2C%20table%3A%20'ProjectMembersActivity'%2C%20filename%3A%20'project_members_activity.csv'%2C%20fields%3A%20%5B%20%7B%20col%3A%20'ProjectName'%2C%20dim%3A%20'%5BProjectMembersActivity.ProjectName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ProjectMemberName'%2C%20dim%3A%20'%5BProjectMembersActivity.ProjectMemberName%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ProjectMemberEmail'%2C%20dim%3A%20'%5BProjectMembersActivity.ProjectMemberEmail%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ProjectMemberRole'%2C%20dim%3A%20'%5BProjectMembersActivity.ProjectMemberRole%5D'%2C%20datatype%3A%20'text'%20%7D%2C%20%7B%20col%3A%20'ExperienceCreatedCount'%2C%20dim%3A%20'%5BProjectMembersActivity.ExperienceCreatedCount%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'InvitationCount'%2C%20dim%3A%20'%5BProjectMembersActivity.InvitationCount%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'ExperienceInstructedCount'%2Cdim%3A%20'%5BProjectMembersActivity.ExperienceInstructedCount%5D'%2Cdatatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'ParticipantCount'%2C%20dim%3A%20'%5BProjectMembersActivity.ParticipantCount%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'UserHours'%2C%20dim%3A%20'%5BProjectMembersActivity.UserHours%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'CompletionRate'%2C%20dim%3A%20'%5BProjectMembersActivity.CompletionRate%5D'%2C%20datatype%3A%20'numeric'%20%7D%2C%20%7B%20col%3A%20'EnvOwnedCount'%2C%20dim%3A%20'%5BProjectMembersActivity.EnvOwnedCount%5D'%2C%20datatype%3A%20'numeric'%20%7D%20%5D%20%7D%20%5D%3B%20var%20OVERLAY_ID%20%3D%20'cs-analytics-overlay'%3B%20if%20(document.getElementById(OVERLAY_ID))%20%7B%20document.getElementById(OVERLAY_ID).style.display%20%3D%20'flex'%3B%20return%3B%20%7D%20var%20overlay%20%3D%20document.createElement('div')%3B%20overlay.id%20%3D%20OVERLAY_ID%3B%20overlay.style.cssText%20%3D%20'position%3Afixed%3Btop%3A0%3Bleft%3A0%3Bright%3A0%3Bbottom%3A0%3Bbackground%3Argba(36%2C45%2C55%2C0.55)%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Acenter%3Bz-index%3A999999%3Bbackdrop-filter%3Ablur(3px)%3Bfont-family%3AFigtree%2C-apple-system%2CBlinkMacSystemFont%2CSegoe%20UI%2CRoboto%2Csans-serif'%3B%20var%20rowsHtml%20%3D%20''%3B%20for%20(var%20ri%20%3D%200%3B%20ri%20%3C%20CUBES.length%3B%20ri%2B%2B)%20%7B%20rowsHtml%20%2B%3D%20'%3Cdiv%20id%3D%22cs-row-'%20%2B%20CUBES%5Bri%5D.id%20%2B%20'%22%20style%3D%22display%3Aflex%3Balign-items%3Acenter%3Bgap%3A10px%3Bpadding%3A8px%200%3Bborder-bottom%3A1px%20solid%20%23f0f0f0%22%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-icon-'%20%2B%20CUBES%5Bri%5D.id%20%2B%20'%22%20style%3D%22width%3A20px%3Bheight%3A20px%3Bborder-radius%3A50%25%3Bbackground%3A%23e8eaed%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Acenter%3Bflex-shrink%3A0%3Bfont-size%3A11px%22%3E%E2%8F%B3%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22flex%3A1%3Bmin-width%3A0%22%3E'%20%2B%20'%3Cdiv%20style%3D%22font-size%3A13px%3Bfont-weight%3A600%3Bcolor%3A%23242D37%3Bwhite-space%3Anowrap%3Boverflow%3Ahidden%3Btext-overflow%3Aellipsis%22%3E'%20%2B%20CUBES%5Bri%5D.label%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-status-'%20%2B%20CUBES%5Bri%5D.id%20%2B%20'%22%20style%3D%22font-size%3A11px%3Bcolor%3A%239ca3af%3Bmargin-top%3A1px%22%3EWaiting...%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-badge-'%20%2B%20CUBES%5Bri%5D.id%20%2B%20'%22%20style%3D%22font-size%3A10px%3Bfont-weight%3A600%3Bcolor%3A%239ca3af%3Bwhite-space%3Anowrap%22%3E%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%3B%20%7D%20overlay.innerHTML%20%3D%20'%3Cdiv%20id%3D%22cs-analytics-modal%22%20style%3D%22background%3A%23fff%3Bborder-radius%3A16px%3Bwidth%3A460px%3Bmax-height%3A90vh%3Boverflow-y%3Aauto%3Bbox-shadow%3A0%2025px%2060px%20rgba(0%2C0%2C0%2C0.3)%3Bcolor%3A%23242D37%22%3E'%20%2B%20'%3Cdiv%20style%3D%22background%3Alinear-gradient(135deg%2C%23242D37%200%25%2C%232d3a47%2050%25%2C%233a4a5c%20100%25)%3Bpadding%3A20px%2024px%2018px%3Bborder-radius%3A16px%2016px%200%200%3Bposition%3Asticky%3Btop%3A0%3Bz-index%3A10%22%3E'%20%2B%20'%3Cdiv%20style%3D%22display%3Aflex%3Bjustify-content%3Aspace-between%3Balign-items%3Acenter%22%3E'%20%2B%20'%3Cdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22font-size%3A10px%3Bfont-weight%3A600%3Bcolor%3A%23F05C37%3Btext-transform%3Auppercase%3Bletter-spacing%3A1.2px%3Bmargin-bottom%3A3px%22%3ECloudShare%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22font-size%3A18px%3Bfont-weight%3A700%3Bcolor%3Awhite%3Bletter-spacing%3A-0.3px%22%3EAnalytics%20Export%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-close%22%20style%3D%22cursor%3Apointer%3Bcolor%3Argba(255%2C255%2C255%2C0.6)%3Bfont-size%3A24px%3Bline-height%3A1%3Bpadding%3A4px%208px%3Bborder-radius%3A8px%22%3E%26times%3B%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22padding%3A20px%2024px%22%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-progress-wrap%22%20style%3D%22margin-bottom%3A16px%22%3E'%20%2B%20'%3Cdiv%20style%3D%22display%3Aflex%3Bjustify-content%3Aspace-between%3Balign-items%3Acenter%3Bmargin-bottom%3A6px%22%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-progress-label%22%20style%3D%22font-size%3A12px%3Bcolor%3A%236b7280%22%3EReady%20to%20export%207%20datasets%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-progress-pct%22%20style%3D%22font-size%3A12px%3Bfont-weight%3A600%3Bcolor%3A%23F05C37%22%3E0%25%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22width%3A100%25%3Bheight%3A6px%3Bbackground%3A%23f0f0f0%3Bborder-radius%3A3px%3Boverflow%3Ahidden%22%3E'%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-bar%22%20style%3D%22width%3A0%25%3Bheight%3A100%25%3Bbackground%3Alinear-gradient(90deg%2C%23F05C37%2C%23ff8a65)%3Bborder-radius%3A3px%3Btransition%3Awidth%200.3s%22%3E%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3Cdiv%20style%3D%22font-size%3A10px%3Bfont-weight%3A600%3Bcolor%3A%23F05C37%3Btext-transform%3Auppercase%3Bletter-spacing%3A1px%3Bmargin-bottom%3A8px%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bgap%3A8px%22%3EDatasets%3Cspan%20style%3D%22flex%3A1%3Bheight%3A1px%3Bbackground%3A%23e8eaed%3Bdisplay%3Ainline-block%22%3E%3C%2Fspan%3E%3C%2Fdiv%3E'%20%2B%20rowsHtml%20%2B%20'%3Cdiv%20id%3D%22cs-analytics-summary%22%20style%3D%22margin-top%3A14px%3Bfont-size%3A12px%3Bcolor%3A%236b7280%3Bmin-height%3A16px%3Btext-align%3Acenter%22%3E%3C%2Fdiv%3E'%20%2B%20'%3Cbutton%20id%3D%22cs-analytics-run%22%20style%3D%22width%3A100%25%3Bmargin-top%3A14px%3Bpadding%3A12px%3Bbackground%3A%23F05C37%3Bcolor%3Awhite%3Bborder%3Anone%3Bborder-radius%3A8px%3Bfont-size%3A14px%3Bfont-weight%3A600%3Bfont-family%3Ainherit%3Bcursor%3Apointer%3Bletter-spacing%3A0.2px%22%20onmouseover%3D%22this.style.background%3D%5C'%23d94f2e%5C'%22%20onmouseout%3D%22if(!this.disabled)this.style.background%3D%5C'%23F05C37%5C'%22%3EExport%20All%207%20Datasets%3C%2Fbutton%3E'%20%2B%20'%3C%2Fdiv%3E'%20%2B%20'%3C%2Fdiv%3E'%3B%20document.body.appendChild(overlay)%3B%20document.getElementById('cs-analytics-close').onclick%20%3D%20function%20()%20%7B%20overlay.style.display%20%3D%20'none'%3B%20%7D%3B%20overlay.onclick%20%3D%20function%20(e)%20%7B%20if%20(e.target%20%3D%3D%3D%20overlay)%20overlay.style.display%20%3D%20'none'%3B%20%7D%3B%20document.addEventListener('keydown'%2C%20function%20(e)%20%7B%20if%20(e.key%20%3D%3D%3D%20'Escape'%20%26%26%20overlay.style.display%20!%3D%3D%20'none')%20overlay.style.display%20%3D%20'none'%3B%20%7D)%3B%20function%20queryCube(cube)%20%7B%20return%20new%20Promise(function%20(resolve%2C%20reject)%20%7B%20var%20http%3B%20try%20%7B%20http%20%3D%20window.prism.%24injector.get('%24http')%3B%20%7D%20catch%20(e)%20%7B%20reject(new%20Error('Sisense%20%24http%20not%20available%3A%20'%20%2B%20e.message))%3B%20return%3B%20%7D%20var%20metadata%20%3D%20cube.fields.map(function%20(f)%20%7B%20return%20%7B%20jaql%3A%20%7B%20table%3A%20cube.table%2C%20column%3A%20f.col%2C%20dim%3A%20f.dim%2C%20datatype%3A%20f.datatype%20%7D%20%7D%3B%20%7D)%3B%20http.post('%2Fapi%2Fdatasources%2F'%20%2B%20cube.cube%20%2B%20'%2Fjaql'%2C%20%7B%20datasource%3A%20%7B%20title%3A%20cube.cube%20%7D%2C%20metadata%3A%20metadata%2C%20count%3A%2050000%20%7D).then(function%20(resp)%20%7B%20var%20values%20%3D%20(resp.data%20%26%26%20resp.data.values)%20%3F%20resp.data.values%20%3A%20%5B%5D%3B%20var%20rows%20%3D%20%5Bcube.fields.map(function%20(f)%20%7B%20return%20f.col%3B%20%7D)%5D%3B%20for%20(var%20vi%20%3D%200%3B%20vi%20%3C%20values.length%3B%20vi%2B%2B)%20%7B%20var%20row%20%3D%20values%5Bvi%5D%3B%20var%20out%20%3D%20%5B%5D%3B%20for%20(var%20ci%20%3D%200%3B%20ci%20%3C%20row.length%3B%20ci%2B%2B)%20%7B%20var%20cell%20%3D%20row%5Bci%5D%3B%20out.push(cell%20%26%26%20cell.text%20!%3D%20null%20%3F%20cell.text%20%3A%20(cell%20%26%26%20cell.data%20!%3D%20null%20%3F%20cell.data%20%3A%20''))%3B%20%7D%20rows.push(out)%3B%20%7D%20resolve(%7B%20rows%3A%20rows%2C%20count%3A%20values.length%20%7D)%3B%20%7D%2C%20function%20(err)%20%7B%20reject(new%20Error(err.status%20%3F%20'HTTP%20'%20%2B%20err.status%20%3A%20String(err)))%3B%20%7D)%3B%20%7D)%3B%20%7D%20document.getElementById('cs-analytics-run').onclick%20%3D%20async%20function%20()%20%7B%20var%20btn%20%3D%20document.getElementById('cs-analytics-run')%3B%20var%20bar%20%3D%20document.getElementById('cs-analytics-bar')%3B%20var%20pct%20%3D%20document.getElementById('cs-analytics-progress-pct')%3B%20var%20lbl%20%3D%20document.getElementById('cs-analytics-progress-label')%3B%20var%20summary%20%3D%20document.getElementById('cs-analytics-summary')%3B%20btn.disabled%20%3D%20true%3B%20btn.style.opacity%20%3D%20'0.7'%3B%20btn.style.background%20%3D%20'%23999'%3B%20btn.textContent%20%3D%20'Exporting...'%3B%20summary.textContent%20%3D%20''%3B%20var%20zipFiles%20%3D%20%5B%5D%3B%20var%20failed%20%3D%20%5B%5D%3B%20var%20totalRows%20%3D%200%3B%20for%20(var%20ci%20%3D%200%3B%20ci%20%3C%20CUBES.length%3B%20ci%2B%2B)%20%7B%20var%20cube%20%3D%20CUBES%5Bci%5D%3B%20var%20iconEl%20%3D%20document.getElementById('cs-icon-'%20%2B%20cube.id)%3B%20var%20statusEl%20%3D%20document.getElementById('cs-status-'%20%2B%20cube.id)%3B%20var%20badgeEl%20%3D%20document.getElementById('cs-badge-'%20%2B%20cube.id)%3B%20iconEl.textContent%20%3D%20'%E2%8F%B3'%3B%20iconEl.style.background%20%3D%20'%23FFF3E0'%3B%20statusEl.textContent%20%3D%20'Querying...'%3B%20statusEl.style.color%20%3D%20'%23F05C37'%3B%20var%20progress%20%3D%20ci%20%2F%20CUBES.length%3B%20bar.style.width%20%3D%20(progress%20*%20100).toFixed(0)%20%2B%20'%25'%3B%20pct.textContent%20%3D%20(progress%20*%20100).toFixed(0)%20%2B%20'%25'%3B%20lbl.textContent%20%3D%20'Exporting%3A%20'%20%2B%20cube.label%20%2B%20'%20('%20%2B%20(ci%20%2B%201)%20%2B%20'%2F'%20%2B%20CUBES.length%20%2B%20')'%3B%20try%20%7B%20var%20result%20%3D%20await%20queryCube(cube)%3B%20zipFiles.push(%7B%20name%3A%20cube.filename%2C%20data%3A%20strToBytes(rowsToCsv(result.rows))%20%7D)%3B%20totalRows%20%2B%3D%20result.count%3B%20iconEl.textContent%20%3D%20'%E2%9C%93'%3B%20iconEl.style.background%20%3D%20'%23DCFCE7'%3B%20iconEl.style.color%20%3D%20'%2316A34A'%3B%20statusEl.textContent%20%3D%20'Done'%3B%20statusEl.style.color%20%3D%20'%2316A34A'%3B%20badgeEl.textContent%20%3D%20result.count.toLocaleString()%20%2B%20'%20rows'%3B%20badgeEl.style.color%20%3D%20'%2316A34A'%3B%20%7D%20catch%20(err)%20%7B%20failed.push(%7B%20label%3A%20cube.label%2C%20error%3A%20err.message%20%7D)%3B%20iconEl.textContent%20%3D%20'%E2%9C%97'%3B%20iconEl.style.background%20%3D%20'%23FEE2E2'%3B%20iconEl.style.color%20%3D%20'%23DC2626'%3B%20statusEl.textContent%20%3D%20'Failed%3A%20'%20%2B%20err.message%3B%20statusEl.style.color%20%3D%20'%23DC2626'%3B%20badgeEl.textContent%20%3D%20'skipped'%3B%20badgeEl.style.color%20%3D%20'%23DC2626'%3B%20%7D%20%7D%20bar.style.width%20%3D%20'100%25'%3B%20pct.textContent%20%3D%20'100%25'%3B%20bar.style.background%20%3D%20failed.length%20%3D%3D%3D%20CUBES.length%20%3F%20'linear-gradient(90deg%2C%23ef4444%2C%23f87171)'%20%3A%20'linear-gradient(90deg%2C%2322c55e%2C%234ade80)'%3B%20lbl.textContent%20%3D%20'Export%20complete'%3B%20if%20(zipFiles.length%20%3E%200)%20%7B%20var%20zip%20%3D%20buildZip(zipFiles)%3B%20var%20blob%20%3D%20new%20Blob(%5Bzip%5D%2C%20%7B%20type%3A%20'application%2Fzip'%20%7D)%3B%20var%20a%20%3D%20document.createElement('a')%3B%20a.href%20%3D%20URL.createObjectURL(blob)%3B%20var%20ts%20%3D%20new%20Date().toISOString().slice(0%2C%2010)%3B%20a.download%20%3D%20'cloudshare_analytics_'%20%2B%20ts%20%2B%20'.zip'%3B%20a.click()%3B%20var%20msg%20%3D%20'%3Cspan%20style%3D%22color%3A%2322c55e%3Bfont-weight%3A600%22%3EExport%20complete%3C%2Fspan%3E%20%E2%80%94%20'%20%2B%20zipFiles.length%20%2B%20'%20files%2C%20'%20%2B%20totalRows.toLocaleString()%20%2B%20'%20total%20rows'%3B%20if%20(failed.length%20%3E%200)%20%7B%20msg%20%2B%3D%20'%3Cbr%3E%3Cspan%20style%3D%22color%3A%23e8870e%22%3E'%20%2B%20failed.length%20%2B%20'%20dataset(s)%20failed%3A%20'%20%2B%20failed.map(function%20(f)%20%7B%20return%20f.label%3B%20%7D).join('%2C%20')%20%2B%20'%3C%2Fspan%3E'%3B%20%7D%20summary.innerHTML%20%3D%20msg%3B%20%7D%20else%20%7B%20summary.innerHTML%20%3D%20'%3Cspan%20style%3D%22color%3A%23ef4444%3Bfont-weight%3A600%22%3EAll%20exports%20failed.%3C%2Fspan%3E%20Check%20that%20you%20are%20logged%20into%20bi.cloudshare.com.'%3B%20%7D%20btn.disabled%20%3D%20false%3B%20btn.style.opacity%20%3D%20'1'%3B%20btn.style.background%20%3D%20'%23F05C37'%3B%20btn.textContent%20%3D%20'Export%20Again'%3B%20%7D%3B%20%7D)()%3B">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M16 11v4a1 1 0 01-1 1H3a1 1 0 01-1-1v-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 2v10M5.5 8.5L9 12l3.5-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CS Analytics Export
+        </a>
+        <p class="note">Drag the button above into your bookmarks bar. It'll appear as a clickable bookmark you can reuse anytime.</p>
       </div>
     </div>
 
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <h3>Open the browser console</h3>
-        <p>Press <strong>F12</strong> (or <strong>Cmd+Option+J</strong> on Mac) to open DevTools, then click the <strong>Console</strong> tab. You must be on the <code>bi.cloudshare.com</code> page.</p>
+    <!-- Datasets Card -->
+    <div class="card">
+      <div class="section-label">What gets exported <span></span></div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.6">
+        Each click exports all 7 Sisense analytics datasets from your CloudShare BI instance.
+        You get a single ZIP file (<code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:12px">cloudshare_analytics_YYYY-MM-DD.zip</code>)
+        with one CSV per dataset, up to 50,000 rows each.
+      </p>
+      <div class="exports-grid">
+        <div class="export-card">
+          <div class="filename">cost_control.csv</div>
+          <h4>Cost Control</h4>
+          <p>Use case, project, course, policy, both cost variants (lowercase + uppercase), usage dates.</p>
+        </div>
+        <div class="export-card">
+          <div class="filename">user_hours_utilization.csv</div>
+          <h4>User Hour Utilization</h4>
+          <p>Course name, user hours consumed, user email, usage date, class type, user role, project.</p>
+        </div>
+        <div class="export-card">
+          <div class="filename">experiences_participation.csv</div>
+          <h4>Experiences &amp; Participation</h4>
+          <p>Experience names, types, hashed IDs, country, max participation counts, usage dates.</p>
+        </div>
+        <div class="export-card">
+          <div class="filename">attendance_completion.csv</div>
+          <h4>Attendance &amp; Completion</h4>
+          <p>Time/drop-off buckets, participant names &amp; hashed IDs, user hours, attendance flag.</p>
+        </div>
+        <div class="export-card">
+          <div class="filename">blueprints_environments.csv</div>
+          <h4>Blueprints &amp; Environments</h4>
+          <p>Env names, blueprints, owners, disk GBH, RAM GBH, runtime &amp; inactive hours, create dates.</p>
+        </div>
+        <div class="export-card">
+          <div class="filename">resource_utilization.csv</div>
+          <h4>Resource Utilization</h4>
+          <p>Project &amp; env name, disk GBH, memory GBH, source type, region, date.</p>
+        </div>
+        <div class="export-card" style="grid-column:1/-1">
+          <div class="filename">project_members_activity.csv</div>
+          <h4>Project Members Activity</h4>
+          <p>Member names, emails, roles per project ? experience created/instructed counts, invitations, participant count, user hours, completion rate, environments owned.</p>
+        </div>
       </div>
     </div>
 
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <h3>Copy &amp; paste the script below</h3>
-        <p>Copy the entire script, paste it into the console, and press <strong>Enter</strong>. Progress updates appear in the console as each dataset is fetched. A ZIP file downloads automatically when complete.</p>
+    <!-- FAQ Card -->
+    <div class="card">
+      <div class="section-label">Common questions <span></span></div>
+
+      <div class="faq-item">
+        <div class="faq-q">Does this send data to an external server?</div>
+        <div class="faq-a">No. The bookmarklet runs entirely in your browser tab on bi.cloudshare.com. All queries go directly to Sisense's internal JAQL API using your existing session. The ZIP is built locally and downloaded to your machine.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">What if I click it on the wrong page?</div>
+        <div class="faq-a">If you're not on bi.cloudshare.com, a confirm dialog appears asking if you want to navigate there. Click OK and it redirects you to the CloudShare Analytics dashboard automatically.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">What if a dataset fails?</div>
+        <div class="faq-a">Failed datasets are marked red in the overlay and skipped. The export continues with the remaining datasets, and you'll still get a ZIP with everything that succeeded. No failure blocks the rest.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How many rows does it pull?</div>
+        <div class="faq-a">Up to 50,000 rows per dataset. For most CloudShare accounts this covers all data. If a cube is larger, Sisense returns the first 50k rows.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Do I need to install anything?</div>
+        <div class="faq-a">No. It's a browser bookmark. Drag it once, use it as many times as you want. Works in Chrome, Edge, and Firefox.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How long does it take?</div>
+        <div class="faq-a">Usually 15?45 seconds total. Datasets run sequentially to avoid hammering Sisense. The overlay shows each dataset's status in real time as it completes.</div>
       </div>
     </div>
 
-    <div class="warning-box">
-      <p><strong>⚠️ Chrome security tip:</strong> If Chrome shows a warning about pasting, type <code>allow pasting</code> first and press Enter, then paste the script.</p>
+    <div style="text-align:center;padding:20px 0 10px">
+      <p style="font-size:11px;color:#b0b7c0">v1 &bull; Runs in your browser &bull; No data sent externally &bull; Requires active CloudShare BI login</p>
     </div>
   </div>
-
-  <!-- The script -->
-  <div class="card">
-    <div class="section-label">Console Script <span></span> <span class="badge">Copy &amp; Paste into bi.cloudshare.com</span></div>
-
-    <div class="script-box">
-      <button class="copy-btn" id="copyBtn" onclick="copyScript()">Copy</button>
-      <pre id="scriptContent">(function() {
-
-// ============================================================
-// CloudShare Analytics Full Export
-// Paste this into the console at bi.cloudshare.com
-// ============================================================
-
-var http = window.prism.$injector.get('$http');
-var errors = [];
-var results = {};
-
-// ---- Utility: build CSV from row arrays ----
-function buildCSV(headers, rows) {
-  var lines = [headers.join(',')];
-  for (var i = 0; i < rows.length; i++) {
-    var cells = rows[i].map(function(v) {
-      var s = (v === null || v === undefined) ? '' : String(v);
-      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
-        s = '"' + s.replace(/"/g, '""') + '"';
-      }
-      return s;
-    });
-    lines.push(cells.join(','));
-  }
-  return lines.join('\n');
-}
-
-// ---- Utility: extract cell value ----
-function cellVal(cell) {
-  if (!cell) return '';
-  return cell.text !== undefined ? cell.text : (cell.data !== undefined ? cell.data : '');
-}
-
-// ---- Utility: JAQL query ----
-function jaqlQuery(datasource, metadata) {
-  return http.post('/api/datasources/' + datasource + '/jaql', {
-    datasource: { title: datasource },
-    metadata: metadata,
-    count: 50000,
-    offset: 0
-  });
-}
-
-// ---- Utility: download ZIP (pure JS, no dependencies) ----
-function downloadZip(files) {
-  // Mini ZIP builder
-  function toBytes(str) {
-    var arr = [];
-    for (var i = 0; i < str.length; i++) {
-      var c = str.charCodeAt(i);
-      if (c < 128) { arr.push(c); }
-      else if (c < 2048) { arr.push(192 | (c >> 6), 128 | (c & 63)); }
-      else { arr.push(224 | (c >> 12), 128 | ((c >> 6) & 63), 128 | (c & 63)); }
-    }
-    return new Uint8Array(arr);
-  }
-  function writeInt(buf, offset, val, n) {
-    for (var i = 0; i < n; i++) { buf[offset + i] = (val >> (8 * i)) & 0xff; }
-  }
-  function crc32(data) {
-    var table = crc32._t;
-    if (!table) {
-      table = new Uint32Array(256);
-      for (var i = 0; i < 256; i++) {
-        var c = i;
-        for (var k = 0; k < 8; k++) { c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); }
-        table[i] = c;
-      }
-      crc32._t = table;
-    }
-    var crc = 0xFFFFFFFF;
-    for (var j = 0; j < data.length; j++) { crc = table[(crc ^ data[j]) & 0xff] ^ (crc >>> 8); }
-    return (crc ^ 0xFFFFFFFF) >>> 0;
-  }
-
-  var localHeaders = [];
-  var centralDirs = [];
-  var offset = 0;
-
-  for (var name in files) {
-    var content = files[name];
-    var nameBytes = toBytes(name);
-    var dataBytes = toBytes(content);
-    var crc = crc32(dataBytes);
-
-    var local = new Uint8Array(30 + nameBytes.length);
-    writeInt(local, 0, 0x04034b50, 4);
-    writeInt(local, 4, 20, 2);
-    writeInt(local, 6, 0, 2);
-    writeInt(local, 8, 0, 2);
-    writeInt(local, 10, 0, 2);
-    writeInt(local, 12, 0, 2);
-    writeInt(local, 14, crc, 4);
-    writeInt(local, 18, dataBytes.length, 4);
-    writeInt(local, 22, dataBytes.length, 4);
-    writeInt(local, 26, nameBytes.length, 2);
-    writeInt(local, 28, 0, 2);
-    local.set(nameBytes, 30);
-
-    var central = new Uint8Array(46 + nameBytes.length);
-    writeInt(central, 0, 0x02014b50, 4);
-    writeInt(central, 4, 20, 2);
-    writeInt(central, 6, 20, 2);
-    writeInt(central, 8, 0, 2);
-    writeInt(central, 10, 0, 2);
-    writeInt(central, 12, 0, 2);
-    writeInt(central, 14, 0, 2);
-    writeInt(central, 16, crc, 4);
-    writeInt(central, 20, dataBytes.length, 4);
-    writeInt(central, 24, dataBytes.length, 4);
-    writeInt(central, 28, nameBytes.length, 2);
-    writeInt(central, 30, 0, 2);
-    writeInt(central, 32, 0, 2);
-    writeInt(central, 34, 0, 2);
-    writeInt(central, 36, 0, 2);
-    writeInt(central, 38, 0, 4);
-    writeInt(central, 42, offset, 4);
-    central.set(nameBytes, 46);
-
-    localHeaders.push({ local: local, data: dataBytes, offset: offset });
-    centralDirs.push(central);
-    offset += local.length + dataBytes.length;
-  }
-
-  var centralSize = centralDirs.reduce(function(s, c) { return s + c.length; }, 0);
-  var eocd = new Uint8Array(22);
-  writeInt(eocd, 0, 0x06054b50, 4);
-  writeInt(eocd, 4, 0, 2);
-  writeInt(eocd, 6, 0, 2);
-  writeInt(eocd, 8, localHeaders.length, 2);
-  writeInt(eocd, 10, localHeaders.length, 2);
-  writeInt(eocd, 12, centralSize, 4);
-  writeInt(eocd, 16, offset, 4);
-  writeInt(eocd, 20, 0, 2);
-
-  var total = offset + centralSize + 22;
-  var zip = new Uint8Array(total);
-  var pos = 0;
-  for (var h = 0; h < localHeaders.length; h++) {
-    zip.set(localHeaders[h].local, pos); pos += localHeaders[h].local.length;
-    zip.set(localHeaders[h].data, pos); pos += localHeaders[h].data.length;
-  }
-  for (var cd = 0; cd < centralDirs.length; cd++) {
-    zip.set(centralDirs[cd], pos); pos += centralDirs[cd].length;
-  }
-  zip.set(eocd, pos);
-
-  var blob = new Blob([zip], { type: 'application/zip' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'cloudshare_analytics_' + new Date().toISOString().slice(0, 10) + '.zip';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
-}
-
-// ====================================================================
-// CUBE 1: CloudShareTrainingCube → training_analytics.csv
-// ====================================================================
-function exportTraining() {
-  console.log('%c[1/6] Exporting Training data...', 'color:#F05C37;font-weight:bold');
-  var fields = [
-    { header: 'Course Name',               jaql: { table: 'Course', column: 'Name', dim: '[Course.Name]', datatype: 'text' } },
-    { header: 'Class Type',                jaql: { table: 'Course', column: 'ClassType', dim: '[Course.ClassType]', datatype: 'text' } },
-    { header: 'Class Status',              jaql: { table: 'Course', column: 'ClassStatus', dim: '[Course.ClassStatus]', datatype: 'text' } },
-    { header: 'Instructor',                jaql: { table: 'Course', column: 'Instructor', dim: '[Course.Instructor]', datatype: 'text' } },
-    { header: 'Blueprint',                 jaql: { table: 'Course', column: 'Blueprint', dim: '[Course.Blueprint]', datatype: 'text' } },
-    { header: 'Start Date',                jaql: { table: 'Course', column: 'StartDate', dim: '[Course.StartDate (Calendar)]', datatype: 'datetime' } },
-    { header: 'Class Start Date',          jaql: { table: 'Course', column: 'ClassStartDate', dim: '[Course.ClassStartDate (Calendar)]', datatype: 'datetime' } },
-    { header: 'Student Email',             jaql: { table: 'Student', column: 'Email', dim: '[Student.Email]', datatype: 'text' } },
-    { header: 'First Name',                jaql: { table: 'Student', column: 'FirstName', dim: '[Student.FirstName]', datatype: 'text' } },
-    { header: 'Last Name',                 jaql: { table: 'Student', column: 'LastName', dim: '[Student.LastName]', datatype: 'text' } },
-    { header: 'Company',                   jaql: { table: 'Student', column: 'CompanyName', dim: '[Student.CompanyName]', datatype: 'text' } },
-    { header: 'Country',                   jaql: { table: 'Student', column: 'country_new', dim: '[Student.country_new]', datatype: 'text' } },
-    { header: 'Did Participate',           jaql: { table: 'Student', column: 'DidParticipate', dim: '[Student.DidParticipate]', datatype: 'text' } },
-    { header: 'User Hours',                jaql: { table: 'Student', column: 'UserHourAmount', dim: '[Student.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Email Domain Type',         jaql: { table: 'Student', column: 'Email_Domain_Type', dim: '[Student.Email_Domain_Type]', datatype: 'text' } },
-    { header: 'Time In Session (min)',     jaql: { table: 'Session_Time', column: 'time_in_session_minutes', dim: '[Session_Time.time_in_session_minutes]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Drop Off Rate',             jaql: { table: 'Session_Time', column: 'Drop_Off_Rate', dim: '[Session_Time.Drop_Off_Rate]', datatype: 'text' } }
-  ];
-  return jaqlQuery('CloudShareTrainingCube', fields.map(function(f) { return { jaql: f.jaql }; }))
-    .then(function(resp) {
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Training: ' + values.length + ' rows', 'color:#10b981');
-      var headers = fields.map(function(f) { return f.header; });
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['training_analytics.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Training export failed:', err);
-      errors.push('CloudShareTrainingCube (training_analytics.csv)');
-    });
-}
-
-// ====================================================================
-// CUBE 2: SalesEnablement → sales_enablement.csv
-// ====================================================================
-function exportSalesEnablement() {
-  console.log('%c[2/6] Exporting Sales Enablement data...', 'color:#F05C37;font-weight:bold');
-  var fields = [
-    { header: 'Opportunity',           jaql: { table: 'POCs', column: 'Opportunity', dim: '[POCs.Opportunity1]', datatype: 'text' } },
-    { header: 'Blueprint',             jaql: { table: 'POCs', column: 'Blueprint', dim: '[POCs.Blueprint]', datatype: 'text' } },
-    { header: 'Status',                jaql: { table: 'POCs', column: 'Status', dim: '[POCs.Status]', datatype: 'text' } },
-    { header: 'POC Invitation Created',jaql: { table: 'POCs', column: 'PocInvitationCreateTime', dim: '[POCs.PocInvitationCreateTime (Calendar)]', datatype: 'datetime' } },
-    { header: 'Owning SE',             jaql: { table: 'POCs', column: 'Owning SE', dim: '[POCs.Owning SE]', datatype: 'text' } },
-    { header: 'Accepted By',           jaql: { table: 'POCs', column: 'Accepted By', dim: '[POCs.Accepted By]', datatype: 'text' } },
-    { header: 'Sent To',               jaql: { table: 'POCs', column: 'Sent To', dim: '[POCs.Sent To]', datatype: 'text' } },
-    { header: 'Sent To Full Name',     jaql: { table: 'POCs', column: 'SentToFullName', dim: '[POCs.SentToFullName]', datatype: 'text' } },
-    { header: 'Env Name',              jaql: { table: 'POCs', column: 'env_name', dim: '[POCs.env_name]', datatype: 'text' } },
-    { header: 'Expires By',            jaql: { table: 'POCs', column: 'Expires By', dim: '[POCs.Expires By (Calendar)]', datatype: 'datetime' } },
-    { header: 'End By',                jaql: { table: 'POCs', column: 'EndBy', dim: '[POCs.EndBy (Calendar)]', datatype: 'datetime' } },
-    { header: 'POCs At Risk',          jaql: { table: 'POCs', column: 'POCsAtRisk', dim: '[POCs.POCsAtRisk]', datatype: 'text' } },
-    { header: 'Activity Status',       jaql: { table: 'POCs', column: 'ActivityNewStatus', dim: '[POCs.ActivityNewStatus]', datatype: 'text' } },
-    { header: 'User Hours',            jaql: { table: 'POCs', column: 'UserHourAmount', dim: '[POCs.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Total Disk GB/H',       jaql: { table: 'POCs', column: 'TotalDiskGBH', dim: '[POCs.TotalDiskGBH]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Total GB/H',            jaql: { table: 'POCs', column: 'TotalGBH', dim: '[POCs.TotalGBH]', datatype: 'numeric', agg: 'sum' } }
-  ];
-  return jaqlQuery('SalesEnablement', fields.map(function(f) { return { jaql: f.jaql }; }))
-    .then(function(resp) {
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Sales Enablement: ' + values.length + ' rows', 'color:#10b981');
-      var headers = fields.map(function(f) { return f.header; });
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['sales_enablement.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Sales Enablement export failed:', err);
-      errors.push('SalesEnablement (sales_enablement.csv)');
-    });
-}
-
-// ====================================================================
-// CUBE 3: SalesExperiencesCube → sales_experiences.csv
-// ====================================================================
-function exportSalesExperiences() {
-  console.log('%c[3/6] Exporting Sales Experiences data...', 'color:#F05C37;font-weight:bold');
-  var fields = [
-    { header: 'Experience Name',         jaql: { table: 'SalesExperiences', column: 'ExperienceName', dim: '[SalesExperiences.ExperienceName]', datatype: 'text' } },
-    { header: 'Course Name',             jaql: { table: 'SalesExperiences', column: 'CourseName', dim: '[SalesExperiences.CourseName]', datatype: 'text' } },
-    { header: 'Opportunity',             jaql: { table: 'SalesExperiences', column: 'Opportunity', dim: '[SalesExperiences.Opportunity]', datatype: 'text' } },
-    { header: 'Blueprint',               jaql: { table: 'SalesExperiences', column: 'Blueprint', dim: '[SalesExperiences.Blueprint]', datatype: 'text' } },
-    { header: 'Experience Type',         jaql: { table: 'SalesExperiences', column: 'ExperienceType', dim: '[SalesExperiences.ExperienceType]', datatype: 'text' } },
-    { header: 'Experience Status',       jaql: { table: 'SalesExperiences', column: 'ExperienceStatus', dim: '[SalesExperiences.ExperienceStatus]', datatype: 'text' } },
-    { header: 'Sales Pro Email',         jaql: { table: 'SalesExperiences', column: 'SalesProEmail', dim: '[SalesExperiences.SalesProEmail]', datatype: 'text' } },
-    { header: 'Participant Email',       jaql: { table: 'SalesExperiences', column: 'ParticipantEmail', dim: '[SalesExperiences.ParticipantEmail]', datatype: 'text' } },
-    { header: 'Sent To Full Name',       jaql: { table: 'SalesExperiences', column: 'SentToFullName', dim: '[SalesExperiences.SentToFullName]', datatype: 'text' } },
-    { header: 'Created',                 jaql: { table: 'SalesExperiences', column: 'ExperienceCreateTime', dim: '[SalesExperiences.ExperienceCreateTime (Calendar)]', datatype: 'datetime' } },
-    { header: 'Start Date',              jaql: { table: 'SalesExperiences', column: 'ExperienceStartDate', dim: '[SalesExperiences.ExperienceStartDate (Calendar)]', datatype: 'datetime' } },
-    { header: 'End Date',                jaql: { table: 'SalesExperiences', column: 'ExperienceEndDate', dim: '[SalesExperiences.ExperienceEndDate (Calendar)]', datatype: 'datetime' } },
-    { header: 'Total Active Time (min)', jaql: { table: 'SalesExperiences', column: 'TotalActiveTimeInMinutes', dim: '[SalesExperiences.TotalActiveTimeInMinutes]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Activity Status',         jaql: { table: 'SalesExperiences', column: 'ActivityNewStatus', dim: '[SalesExperiences.ActivityNewStatus]', datatype: 'text' } }
-  ];
-  return jaqlQuery('SalesExperiencesCube', fields.map(function(f) { return { jaql: f.jaql }; }))
-    .then(function(resp) {
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Sales Experiences: ' + values.length + ' rows', 'color:#10b981');
-      var headers = fields.map(function(f) { return f.header; });
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['sales_experiences.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Sales Experiences export failed:', err);
-      errors.push('SalesExperiencesCube (sales_experiences.csv)');
-    });
-}
-
-// ====================================================================
-// CUBE 4: ResourcesConsumptionCube → resources.csv
-// ====================================================================
-function exportResources() {
-  console.log('%c[4/6] Exporting Resource Consumption data...', 'color:#F05C37;font-weight:bold');
-  var fields = [
-    { header: 'Date',              jaql: { table: 'DailyBillingResources', column: 'DataSampleDay', dim: '[DailyBillingResources.DataSampleDay (Calendar)]', datatype: 'datetime' } },
-    { header: 'Project Name',      jaql: { table: 'DailyBillingResources', column: 'ProjectName', dim: '[DailyBillingResources.ProjectName]', datatype: 'text' } },
-    { header: 'Blueprint',         jaql: { table: 'DailyBillingResources', column: 'Blueprint', dim: '[DailyBillingResources.Blueprint]', datatype: 'text' } },
-    { header: 'Env Name',          jaql: { table: 'DailyBillingResources', column: 'EnvName', dim: '[DailyBillingResources.EnvName]', datatype: 'text' } },
-    { header: 'Policy Name',       jaql: { table: 'DailyBillingResources', column: 'PolicyName', dim: '[DailyBillingResources.PolicyName]', datatype: 'text' } },
-    { header: 'Team',              jaql: { table: 'DailyBillingResources', column: 'Team', dim: '[DailyBillingResources.Team]', datatype: 'text' } },
-    { header: 'Region',            jaql: { table: 'DailyBillingResources', column: 'Region', dim: '[DailyBillingResources.Region]', datatype: 'text' } },
-    { header: 'Experience Type',   jaql: { table: 'DailyBillingResources', column: 'ExperienceType', dim: '[DailyBillingResources.ExperienceType]', datatype: 'text' } },
-    { header: 'User Hours',        jaql: { table: 'DailyBillingResources', column: 'UserHourAmount', dim: '[DailyBillingResources.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Total Disk GB/H',   jaql: { table: 'DailyBillingResources', column: 'TotalDiskGB/H', dim: '[DailyBillingResources.TotalDiskGB/H]', datatype: 'numeric', agg: 'sum' } },
-    { header: 'Total GB/H',        jaql: { table: 'DailyBillingResources', column: 'TotalGB/H', dim: '[DailyBillingResources.TotalGB/H]', datatype: 'numeric', agg: 'sum' } }
-  ];
-  return jaqlQuery('ResourcesConsumptionCube', fields.map(function(f) { return { jaql: f.jaql }; }))
-    .then(function(resp) {
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Resources: ' + values.length + ' rows', 'color:#10b981');
-      var headers = fields.map(function(f) { return f.header; });
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['resources.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Resources export failed:', err);
-      errors.push('ResourcesConsumptionCube (resources.csv)');
-    });
-}
-
-// ====================================================================
-// CUBE 5: CloudShareEnvironmentsCube → environments.csv
-// Auto-discover fields from dashboard 63d928c2edbb5ec6d88f930b
-// ====================================================================
-function exportEnvironments() {
-  console.log('%c[5/6] Discovering Environments fields from dashboard...', 'color:#F05C37;font-weight:bold');
-  return http.get('/api/dashboards/63d928c2edbb5ec6d88f930b/widgets')
-    .then(function(resp) {
-      var widgets = resp.data || [];
-      var seen = {};
-      var fields = [];
-      for (var w = 0; w < widgets.length; w++) {
-        var widget = widgets[w];
-        var metadata = (widget.metadata && widget.metadata.panels) ? widget.metadata.panels : [];
-        for (var p = 0; p < metadata.length; p++) {
-          var items = metadata[p].items || [];
-          for (var it = 0; it < items.length; it++) {
-            var jaql = items[it].jaql;
-            if (!jaql || !jaql.dim || !jaql.table) continue;
-            if (jaql.table !== 'CloudShareEnvironmentsCube' && jaql.context) continue;
-            var key = jaql.dim;
-            if (!seen[key]) {
-              seen[key] = true;
-              fields.push({
-                header: jaql.title || (jaql.table + '.' + jaql.column) || jaql.dim,
-                jaql: jaql
-              });
-            }
-          }
-        }
-      }
-      if (fields.length === 0) {
-        console.warn('    No fields discovered for Environments cube, trying fallback fields...');
-        // Fallback: common environment fields
-        fields = [
-          { header: 'Env Name', jaql: { table: 'Environments', column: 'EnvName', dim: '[Environments.EnvName]', datatype: 'text' } },
-          { header: 'Project Name', jaql: { table: 'Environments', column: 'ProjectName', dim: '[Environments.ProjectName]', datatype: 'text' } },
-          { header: 'Blueprint', jaql: { table: 'Environments', column: 'Blueprint', dim: '[Environments.Blueprint]', datatype: 'text' } },
-          { header: 'Status', jaql: { table: 'Environments', column: 'Status', dim: '[Environments.Status]', datatype: 'text' } },
-          { header: 'Region', jaql: { table: 'Environments', column: 'Region', dim: '[Environments.Region]', datatype: 'text' } },
-          { header: 'Created', jaql: { table: 'Environments', column: 'CreateTime', dim: '[Environments.CreateTime (Calendar)]', datatype: 'datetime' } }
-        ];
-      }
-      console.log('%c    Discovered ' + fields.length + ' Environments fields', 'color:#10b981');
-      return jaqlQuery('CloudShareEnvironmentsCube', fields.map(function(f) { return { jaql: f.jaql }; }));
-    })
-    .then(function(resp) {
-      if (!resp) return;
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Environments: ' + values.length + ' rows', 'color:#10b981');
-      // Rebuild field headers from resp metadata if available
-      var headers = (resp.config && resp.config.data && resp.config.data.metadata)
-        ? resp.config.data.metadata.map(function(m) { return m.jaql.title || m.jaql.column || m.jaql.dim; })
-        : ['(fields)'];
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['environments.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Environments export failed:', err);
-      errors.push('CloudShareEnvironmentsCube (environments.csv)');
-    });
-}
-
-// ====================================================================
-// CUBE 6: ProjectMemberUsageCube → project_members.csv
-// Auto-discover fields from dashboard 652bd3c9be28a68c906f240c
-// ====================================================================
-function exportProjectMembers() {
-  console.log('%c[6/6] Discovering Project Members fields from dashboard...', 'color:#F05C37;font-weight:bold');
-  return http.get('/api/dashboards/652bd3c9be28a68c906f240c/widgets')
-    .then(function(resp) {
-      var widgets = resp.data || [];
-      var seen = {};
-      var fields = [];
-      for (var w = 0; w < widgets.length; w++) {
-        var widget = widgets[w];
-        var metadata = (widget.metadata && widget.metadata.panels) ? widget.metadata.panels : [];
-        for (var p = 0; p < metadata.length; p++) {
-          var items = metadata[p].items || [];
-          for (var it = 0; it < items.length; it++) {
-            var jaql = items[it].jaql;
-            if (!jaql || !jaql.dim || !jaql.table) continue;
-            var key = jaql.dim;
-            if (!seen[key]) {
-              seen[key] = true;
-              fields.push({
-                header: jaql.title || (jaql.table + '.' + jaql.column) || jaql.dim,
-                jaql: jaql
-              });
-            }
-          }
-        }
-      }
-      if (fields.length === 0) {
-        console.warn('    No fields discovered for Project Members cube, trying fallback fields...');
-        fields = [
-          { header: 'Project Name', jaql: { table: 'ProjectMembers', column: 'ProjectName', dim: '[ProjectMembers.ProjectName]', datatype: 'text' } },
-          { header: 'User Email', jaql: { table: 'ProjectMembers', column: 'UserEmail', dim: '[ProjectMembers.UserEmail]', datatype: 'text' } },
-          { header: 'Role', jaql: { table: 'ProjectMembers', column: 'Role', dim: '[ProjectMembers.Role]', datatype: 'text' } },
-          { header: 'User Hours', jaql: { table: 'ProjectMembers', column: 'UserHourAmount', dim: '[ProjectMembers.UserHourAmount]', datatype: 'numeric', agg: 'sum' } }
-        ];
-      }
-      console.log('%c    Discovered ' + fields.length + ' Project Members fields', 'color:#10b981');
-      return jaqlQuery('ProjectMemberUsageCube', fields.map(function(f) { return { jaql: f.jaql }; }));
-    })
-    .then(function(resp) {
-      if (!resp) return;
-      var values = (resp.data && resp.data.values) ? resp.data.values : [];
-      console.log('%c    Project Members: ' + values.length + ' rows', 'color:#10b981');
-      var headers = (resp.config && resp.config.data && resp.config.data.metadata)
-        ? resp.config.data.metadata.map(function(m) { return m.jaql.title || m.jaql.column || m.jaql.dim; })
-        : ['(fields)'];
-      var rows = values.map(function(row) {
-        return row.map(function(cell) { return cellVal(cell); });
-      });
-      results['project_members.csv'] = buildCSV(headers, rows);
-    })
-    .catch(function(err) {
-      console.error('    Project Members export failed:', err);
-      errors.push('ProjectMemberUsageCube (project_members.csv)');
-    });
-}
-
-// ====================================================================
-// RUN ALL EXPORTS IN SEQUENCE, THEN DOWNLOAD ZIP
-// ====================================================================
-console.log('%cCloudShare Analytics Export Starting...', 'color:#242D37;font-weight:bold;font-size:14px');
-console.log('%cThis may take 30–60 seconds depending on data volume.', 'color:#6b7280');
-
-exportTraining()
-  .then(function() { return exportSalesEnablement(); })
-  .then(function() { return exportSalesExperiences(); })
-  .then(function() { return exportResources(); })
-  .then(function() { return exportEnvironments(); })
-  .then(function() { return exportProjectMembers(); })
-  .then(function() {
-    var fileCount = Object.keys(results).length;
-    if (fileCount === 0) {
-      console.error('%cExport failed: no data was retrieved. Check that you are logged into bi.cloudshare.com.', 'color:#ef4444;font-weight:bold');
-      return;
-    }
-    if (errors.length > 0) {
-      console.warn('%cCompleted with errors. These cubes failed:', 'color:#f59e0b;font-weight:bold');
-      errors.forEach(function(e) { console.warn('  ✗ ' + e); });
-    }
-    console.log('%cAll exports complete! Building ZIP...', 'color:#10b981;font-weight:bold');
-    console.log('%c  Files: ' + Object.keys(results).join(', '), 'color:#10b981');
-    downloadZip(results);
-    console.log('%c✅ ZIP downloaded! Check your Downloads folder.', 'color:#10b981;font-weight:bold;font-size:13px');
-  })
-  .catch(function(err) {
-    console.error('Unexpected export error:', err);
-  });
-
-})();</pre>
-    </div>
-
-    <p class="note">
-      <strong>What to expect:</strong> The console will log progress for each of the 6 datasets. Large accounts may take 30–60 seconds. The ZIP downloads automatically when all exports finish. If any cube fails, the others still export and the error is reported in the console.
-    </p>
-  </div>
-
-  <!-- Troubleshooting -->
-  <div class="card">
-    <div class="section-label">Troubleshooting <span></span></div>
-
-    <div class="step">
-      <div class="step-num" style="background:#6b7280">?</div>
-      <div class="step-content">
-        <h3>"Cannot read property '$injector'" error</h3>
-        <p>You're not on the right page. Navigate to <code>bi.cloudshare.com</code> first (open Analytics from CloudShare Accelerate), then paste the script again.</p>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num" style="background:#6b7280">?</div>
-      <div class="step-content">
-        <h3>A cube returns 0 rows</h3>
-        <p>Your account may not have data in that cube, or the field names may differ. The export still completes — check which CSVs have content inside the ZIP.</p>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num" style="background:#6b7280">?</div>
-      <div class="step-content">
-        <h3>Environments or Project Members shows wrong columns</h3>
-        <p>The script auto-discovers fields from dashboard widget definitions. If the dashboard layout changed, the column headers may shift. The data itself is still correct.</p>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num" style="background:#6b7280">?</div>
-      <div class="step-content">
-        <h3>Script times out on large datasets</h3>
-        <p>Sisense caps responses at 50,000 rows per query. If you need more, run exports on a filtered date range or contact CloudShare support for a direct database export.</p>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-function copyScript() {
-  var text = document.getElementById('scriptContent').textContent;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showCopied();
-    }).catch(function() {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); showCopied(); } catch(e) {}
-  document.body.removeChild(ta);
-}
-
-function showCopied() {
-  var btn = document.getElementById('copyBtn');
-  btn.textContent = 'Copied!';
-  btn.classList.add('copied');
-  setTimeout(function() {
-    btn.textContent = 'Copy';
-    btn.classList.remove('copied');
-  }, 2000);
-}
-</script>
-
 </body>
 </html>
