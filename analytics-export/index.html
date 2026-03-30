@@ -9,8 +9,6 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Figtree',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8f8f8; color:#242D37; }
     .hero { background:linear-gradient(135deg,#242D37 0%,#2d3a47 50%,#3a4a5c 100%); padding:60px 20px 50px; text-align:center; }
-    .hero-logo { margin-bottom:16px; }
-    .hero-logo img { height:32px; }
     .hero h1 { font-size:28px; font-weight:700; color:white; margin-bottom:8px; letter-spacing:-0.5px; }
     .hero p { font-size:15px; color:rgba(255,255,255,0.7); max-width:560px; margin:0 auto; line-height:1.5; }
     .container { max-width:680px; margin:-30px auto 40px; padding:0 20px; }
@@ -18,10 +16,11 @@
     .section-label { font-size:10px; font-weight:600; color:#F05C37; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     .section-label span { flex:1; height:1px; background:#e8eaed; }
     .step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+    .step:last-child { margin-bottom:0; }
     .step-num { width:28px; height:28px; background:#F05C37; color:white; border-radius:50%; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
     .step-content h3 { font-size:15px; font-weight:600; margin-bottom:4px; }
     .step-content p { font-size:13px; color:#6b7280; line-height:1.5; }
-    .cta-section { text-align:center; margin:20px 0 8px; }
+    .cta-section { text-align:center; margin:24px 0 8px; }
     .cta-section p { font-size:13px; color:#6b7280; margin-bottom:14px; }
     .bookmark-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; background:#F05C37; color:white; text-decoration:none; border-radius:10px; font-size:15px; font-weight:600; font-family:inherit; cursor:grab; transition:all 0.2s; box-shadow:0 2px 8px rgba(240,92,55,0.3); user-select:none; }
     .bookmark-btn:hover { background:#d94f2e; box-shadow:0 4px 16px rgba(240,92,55,0.4); transform:translateY(-1px); }
@@ -36,7 +35,9 @@
     .faq-item:last-child { margin-bottom:0; }
     .faq-q { font-size:13px; font-weight:600; color:#242D37; margin-bottom:3px; }
     .faq-a { font-size:13px; color:#6b7280; line-height:1.5; }
-
+    .feature-list { list-style:none; padding:0; }
+    .feature-list li { font-size:13px; color:#6b7280; padding:6px 0; display:flex; align-items:center; gap:10px; }
+    .feature-list li::before { content:''; width:6px; height:6px; background:#F05C37; border-radius:50%; flex-shrink:0; }
     @keyframes dragDemo {
       0%, 15%   { bottom:2px; left:50%; transform:translateX(-50%) scale(1); opacity:1; }
       40%, 55%  { bottom:44px; left:38%; transform:translateX(-50%) scale(0.95); opacity:0.9; }
@@ -48,42 +49,41 @@
 </head>
 <body>
   <div class="hero">
-    <div class="hero-logo"><img src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" onerror="this.style.display='none'"></div>
-    <h1>Analytics Export Tool</h1>
-    <p>Export all 7 analytics datasets from your CloudShare BI dashboard as a ZIP of CSVs ? straight from your browser.</p>
+    <div style="margin-bottom:16px"><img src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" height="32" onerror="this.style.display='none'"></div>
+    <h1>Analytics Export</h1>
+    <p>Export analytics data from your CloudShare BI dashboards as CSV files - straight from your browser.</p>
   </div>
 
   <div class="container">
-    <!-- Setup Card -->
     <div class="card">
-      <div class="section-label">Setup <span></span></div>
+      <div class="section-label">How it works <span></span></div>
 
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-content">
-          <h3>Show your bookmarks bar</h3>
-          <p>Press <strong>Ctrl+Shift+B</strong> (Windows) or <strong>Cmd+Shift+B</strong> (Mac) to toggle it on.</p>
+          <h3>Drag the button to your bookmarks bar</h3>
+          <p>Press <strong>Ctrl+Shift+B</strong> to show your bookmarks bar if hidden, then drag the orange button below into it.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <h3>Drag the button to your bookmarks bar</h3>
-          <p>Grab the orange button below and drag it up into your bookmarks bar. It'll appear as a clickable bookmark.</p>
+          <h3>Go to CloudShare Analytics</h3>
+          <p>Navigate to any dashboard on <a href="https://bi.cloudshare.com" target="_blank" style="color:#F05C37;font-weight:500">bi.cloudshare.com</a>. If you click the bookmarklet from another CloudShare page, it redirects you automatically.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <h3>Navigate to CloudShare Analytics, then click it</h3>
-          <p>Go to <a href="https://bi.cloudshare.com" target="_blank" style="color:#F05C37;font-weight:500">bi.cloudshare.com</a> (or click the bookmark anywhere ? it will redirect you if needed). Once there, click the bookmark to launch the export.</p>
+          <h3>Click the bookmarklet and choose your datasets</h3>
+          <p>An overlay appears with all 7 datasets. Check the ones you want, click Export, and the CSVs download directly to your machine.</p>
         </div>
       </div>
 
       <!-- Drag demo -->
-      <div style="text-align:center;margin:10px 0 0">
+      <div style="text-align:center;margin:20px 0 0">
         <div style="position:relative;height:80px;max-width:340px;margin:0 auto 14px">
           <div style="position:absolute;top:0;left:0;right:0;height:34px;background:#f0f0f0;border-radius:6px 6px 0 0;display:flex;align-items:center;padding:0 10px;gap:6px">
             <div style="width:7px;height:7px;background:#d1d5db;border-radius:50%"></div>
@@ -94,7 +94,7 @@
           <div style="position:absolute;top:34px;left:0;right:0;height:28px;background:#e8eaed;border-radius:0 0 6px 6px;display:flex;align-items:center;padding:0 8px;gap:5px;border-top:1px solid #d1d5db">
             <span style="padding:2px 8px;background:#fff;border-radius:3px;font-size:9px;color:#9ca3af">Bookmarks</span>
             <span style="padding:2px 8px;background:#fff;border-radius:3px;font-size:9px;color:#9ca3af">Other</span>
-            <span style="padding:2px 8px;border-radius:3px;font-size:9px;border:1.5px dashed #F05C37;color:#F05C37;background:rgba(240,92,55,0.05)">Drop here ?</span>
+            <span style="padding:2px 8px;border-radius:3px;font-size:9px;border:1.5px dashed #F05C37;color:#F05C37;background:rgba(240,92,55,0.05)">Drop here</span>
           </div>
           <div style="position:absolute;bottom:2px;left:50%;padding:4px 14px;background:#F05C37;color:white;border-radius:5px;font-size:9px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(240,92,55,0.35);animation:dragDemo 3.5s ease-in-out infinite;pointer-events:none;transform:translateX(-50%)">CS Analytics</div>
         </div>
@@ -102,98 +102,101 @@
 
       <div class="cta-section">
         <p>Drag this button into your bookmarks bar:</p>
-        <a class="bookmark-btn" id="cs-analytics-bookmarklet" href="javascript:(function(){if(window.location.hostname!=='bi.cloudshare.com'){if(window.location.hostname.indexOf('cloudshare.com')>-1){window.location.href='https://use.cloudshare.com/Ent/BI.mvc/SisenseAuth/?url=dashboards/652bd61cbe28a68c906f246a';return;}alert('Navigate to CloudShare Analytics first.');return;}fetch('https://api.github.com/repos/zach807/cloudshare-tools/contents/analytics-export/export.js').then(function(r){return r.json()}).then(function(j){var t=atob(j.content.replace(/\\n/g,''));try{(0,eval)(t)}catch(e){alert('Script error: '+e.message)}}).catch(function(e){alert('Failed to load: '+e.message)});})()">
+        <a class="bookmark-btn" href="javascript:(function(){if(window.location.hostname!=='bi.cloudshare.com'){if(window.location.hostname.indexOf('cloudshare.com')>-1){window.location.href='https://use.cloudshare.com/Ent/BI.mvc/SisenseAuth/?url=dashboards/652bd61cbe28a68c906f246a';return;}alert('Navigate to CloudShare Analytics first.');return;}fetch('https://api.github.com/repos/zach807/cloudshare-tools/contents/analytics-export/export.js').then(function(r){return r.json()}).then(function(j){var t=atob(j.content.replace(/\n/g,''));try{(0,eval)(t)}catch(e){alert('Script error: '+e.message)}}).catch(function(e){alert('Failed to load: '+e.message)});})()">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M16 11v4a1 1 0 01-1 1H3a1 1 0 01-1-1v-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 2v10M5.5 8.5L9 12l3.5-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           CS Analytics Export
         </a>
-        <p class="note">Drag the button above into your bookmarks bar. It'll appear as a clickable bookmark you can reuse anytime.</p>
+        <p class="note">This is a browser bookmark - just drag and drop. No installation needed.</p>
       </div>
     </div>
 
-    <!-- Datasets Card -->
     <div class="card">
-      <div class="section-label">What gets exported <span></span></div>
+      <div class="section-label">Features <span></span></div>
+      <ul class="feature-list">
+        <li>Select which datasets to export with checkboxes</li>
+        <li>Downloads individual CSV files (up to 50,000 rows each)</li>
+        <li>Real-time progress overlay with per-dataset status</li>
+        <li>Runs entirely in your browser - no data sent to external servers</li>
+        <li>Failed datasets are skipped without blocking the rest</li>
+        <li>Works in Chrome, Edge, and Firefox</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Available datasets <span></span></div>
       <p style="font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.6">
-        Each click exports all 7 Sisense analytics datasets from your CloudShare BI instance.
-        You get a single ZIP file (<code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:12px">cloudshare_analytics_YYYY-MM-DD.zip</code>)
-        with one CSV per dataset, up to 50,000 rows each.
+        7 datasets from the CloudShare Dashboards folder. Each exports as a separate CSV.
       </p>
       <div class="exports-grid">
         <div class="export-card">
           <div class="filename">cost_control.csv</div>
           <h4>Cost Control</h4>
-          <p>Use case, project, course, policy, both cost variants (lowercase + uppercase), usage dates.</p>
+          <p>Use case, project, course, policy, cost breakdown, usage dates.</p>
         </div>
         <div class="export-card">
           <div class="filename">user_hours_utilization.csv</div>
           <h4>User Hour Utilization</h4>
-          <p>Course name, user hours consumed, user email, usage date, class type, user role, project.</p>
+          <p>Course name, hours consumed, user email, class type, user role, project.</p>
         </div>
         <div class="export-card">
           <div class="filename">experiences_participation.csv</div>
           <h4>Experiences &amp; Participation</h4>
-          <p>Experience names, types, hashed IDs, country, max participation counts, usage dates.</p>
+          <p>Experience names, types, hashed IDs, country, participation counts.</p>
         </div>
         <div class="export-card">
           <div class="filename">attendance_completion.csv</div>
           <h4>Attendance &amp; Completion</h4>
-          <p>Time/drop-off buckets, participant names &amp; hashed IDs, user hours, attendance flag.</p>
+          <p>Time/drop-off buckets, participant names, user hours, attendance status.</p>
         </div>
         <div class="export-card">
           <div class="filename">blueprints_environments.csv</div>
           <h4>Blueprints &amp; Environments</h4>
-          <p>Env names, blueprints, owners, disk GBH, RAM GBH, runtime &amp; inactive hours, create dates.</p>
+          <p>Env names, blueprints, owners, disk/RAM GBH, runtime hours.</p>
         </div>
         <div class="export-card">
           <div class="filename">resource_utilization.csv</div>
           <h4>Resource Utilization</h4>
-          <p>Project &amp; env name, disk GBH, memory GBH, source type, region, date.</p>
+          <p>Project name, disk/memory GBH, source type, region, date.</p>
         </div>
         <div class="export-card" style="grid-column:1/-1">
           <div class="filename">project_members_activity.csv</div>
           <h4>Project Members Activity</h4>
-          <p>Member names, emails, roles per project ? experience created/instructed counts, invitations, participant count, user hours, completion rate, environments owned.</p>
+          <p>Member names, emails, roles, experience counts, invitations, participant counts, user hours, completion rate, environments owned.</p>
         </div>
       </div>
     </div>
 
-    <!-- FAQ Card -->
     <div class="card">
-      <div class="section-label">Common questions <span></span></div>
+      <div class="section-label">FAQ <span></span></div>
 
       <div class="faq-item">
         <div class="faq-q">Does this send data to an external server?</div>
-        <div class="faq-a">No. The bookmarklet runs entirely in your browser tab on bi.cloudshare.com. All queries go directly to Sisense's internal JAQL API using your existing session. The ZIP is built locally and downloaded to your machine.</div>
+        <div class="faq-a">No. The bookmarklet runs entirely in your browser on bi.cloudshare.com. All queries go directly to Sisense's internal JAQL API using your existing session. CSVs are built and downloaded locally.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">What if I click it on the wrong page?</div>
-        <div class="faq-a">If you're not on bi.cloudshare.com, a confirm dialog appears asking if you want to navigate there. Click OK and it redirects you to the CloudShare Analytics dashboard automatically.</div>
+        <div class="faq-a">If you're on another CloudShare page, it redirects you to bi.cloudshare.com automatically. Click the bookmarklet again once you're there.</div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">What if a dataset fails?</div>
-        <div class="faq-a">Failed datasets are marked red in the overlay and skipped. The export continues with the remaining datasets, and you'll still get a ZIP with everything that succeeded. No failure blocks the rest.</div>
+        <div class="faq-q">Chrome is blocking multiple downloads?</div>
+        <div class="faq-a">Chrome may ask permission to download multiple files. Click "Allow" when prompted. This only happens the first time.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">How many rows does it pull?</div>
-        <div class="faq-a">Up to 50,000 rows per dataset. For most CloudShare accounts this covers all data. If a cube is larger, Sisense returns the first 50k rows.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-q">Do I need to install anything?</div>
-        <div class="faq-a">No. It's a browser bookmark. Drag it once, use it as many times as you want. Works in Chrome, Edge, and Firefox.</div>
+        <div class="faq-a">Up to 50,000 rows per dataset. For most CloudShare accounts this covers everything.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">How long does it take?</div>
-        <div class="faq-a">Usually 15?45 seconds total. Datasets run sequentially to avoid hammering Sisense. The overlay shows each dataset's status in real time as it completes.</div>
+        <div class="faq-a">Usually 15-45 seconds depending on how many datasets you select. They run one at a time to avoid overloading Sisense.</div>
       </div>
     </div>
 
     <div style="text-align:center;padding:20px 0 10px">
-      <p style="font-size:11px;color:#b0b7c0">v1 &bull; Runs in your browser &bull; No data sent externally &bull; Requires active CloudShare BI login</p>
+      <p style="font-size:11px;color:#b0b7c0">v2 &middot; Browser-only &middot; No data sent externally &middot; Requires active CloudShare BI login</p>
     </div>
   </div>
 </body>
