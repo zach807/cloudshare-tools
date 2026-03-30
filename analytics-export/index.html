@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudShare Analytics Export</title>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Figtree','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f8f8f8; color:#242D37; }
+    .hero { background:linear-gradient(135deg,#242D37 0%,#2d3a47 50%,#3a4a5c 100%); padding:60px 20px 50px; text-align:center; }
+    .hero-logo { margin-bottom:16px; }
+    .hero-logo img { height:32px; }
+    .hero h1 { font-size:28px; font-weight:700; color:white; margin-bottom:8px; letter-spacing:-0.5px; }
+    .hero p { font-size:15px; color:rgba(255,255,255,0.7); max-width:560px; margin:0 auto; line-height:1.5; }
+    .container { max-width:720px; margin:-30px auto 40px; padding:0 20px; }
+    .card { background:white; border-radius:16px; padding:28px 32px; box-shadow:0 4px 24px rgba(0,0,0,0.08); margin-bottom:20px; }
+    .section-label { font-size:10px; font-weight:600; color:#F05C37; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .section-label span { flex:1; height:1px; background:#e8eaed; }
+    .step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+    .step:last-child { margin-bottom:0; }
+    .step-num { width:28px; height:28px; background:#F05C37; color:white; border-radius:50%; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+    .step-content h3 { font-size:15px; font-weight:600; margin-bottom:4px; }
+    .step-content p { font-size:13px; color:#6b7280; line-height:1.5; }
+    .step-content a { color:#F05C37; font-weight:500; text-decoration:none; }
+    .step-content a:hover { text-decoration:underline; }
+    .step-content code { background:#f3f4f6; padding:1px 6px; border-radius:4px; font-size:12px; font-family:monospace; color:#374151; }
+    .divider { height:1px; background:#e8eaed; margin:20px 0; }
+    .exports-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px; }
+    .export-item { padding:14px 16px; background:#f8f8f8; border-radius:10px; border-left:3px solid #F05C37; }
+    .export-item h4 { font-size:13px; font-weight:600; margin-bottom:3px; color:#242D37; }
+    .export-item p { font-size:11px; color:#6b7280; line-height:1.4; }
+    .export-item .filename { font-size:11px; color:#F05C37; font-weight:600; font-family:monospace; margin-top:4px; }
+    .script-box { background:#1e2a38; border-radius:12px; padding:20px; margin-top:4px; position:relative; }
+    .script-box pre { color:#e2e8f0; font-size:12px; font-family:'Courier New',Consolas,monospace; white-space:pre-wrap; line-height:1.6; overflow-x:auto; }
+    .copy-btn { position:absolute; top:12px; right:12px; padding:6px 14px; background:#F05C37; color:white; border:none; border-radius:7px; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; transition:all 0.2s; }
+    .copy-btn:hover { background:#d94f2e; }
+    .copy-btn.copied { background:#10b981; }
+    .note { font-size:12px; color:#9ca3af; margin-top:12px; line-height:1.6; }
+    .note strong { color:#6b7280; }
+    .badge { display:inline-block; padding:2px 8px; background:rgba(240,92,55,0.1); color:#F05C37; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+    .warning-box { background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:16px; }
+    .warning-box p { font-size:13px; color:#92400e; line-height:1.5; }
+    .warning-box strong { color:#7c2d12; }
+    @media(max-width:540px) { .exports-grid { grid-template-columns:1fr; } .card { padding:20px; } }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">
+    <img src="https://www.cloudshare.com/wp-content/uploads/2023/04/main-logo-new.svg" alt="CloudShare" onerror="this.style.display='none'">
+  </div>
+  <h1>Analytics Export Tool</h1>
+  <p>Export all data from CloudShare's Sisense BI dashboards — training, sales enablement, experiences, resources, environments, and project members — as a single ZIP of CSVs.</p>
+</div>
+
+<div class="container">
+
+  <!-- What gets exported -->
+  <div class="card">
+    <div class="section-label">What You'll Get <span></span></div>
+    <div class="exports-grid">
+      <div class="export-item">
+        <h4>📚 Training Analytics</h4>
+        <p>Course data, student records, participation, session time, drop-off rates</p>
+        <div class="filename">training_analytics.csv</div>
+      </div>
+      <div class="export-item">
+        <h4>💼 Sales Enablement</h4>
+        <p>POC opportunities, status, SE ownership, usage hours, disk/GB metrics</p>
+        <div class="filename">sales_enablement.csv</div>
+      </div>
+      <div class="export-item">
+        <h4>🎯 Sales Experiences</h4>
+        <p>Experience names, participants, status, active time, start/end dates</p>
+        <div class="filename">sales_experiences.csv</div>
+      </div>
+      <div class="export-item">
+        <h4>⚙️ Resource Consumption</h4>
+        <p>Daily billing, project/blueprint/env breakdown, compute hours, storage</p>
+        <div class="filename">resources.csv</div>
+      </div>
+      <div class="export-item">
+        <h4>🖥️ Environments</h4>
+        <p>Environment data from CloudShareEnvironmentsCube (auto-discovers fields)</p>
+        <div class="filename">environments.csv</div>
+      </div>
+      <div class="export-item">
+        <h4>👥 Project Members</h4>
+        <p>Project member usage from ProjectMemberUsageCube (auto-discovers fields)</p>
+        <div class="filename">project_members.csv</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to use -->
+  <div class="card">
+    <div class="section-label">How to Use <span></span></div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Open CloudShare Analytics</h3>
+        <p>Log into <a href="https://use.cloudshare.com" target="_blank">CloudShare Accelerate</a>, then click <strong>Analytics</strong> in the navigation. This opens <a href="https://bi.cloudshare.com" target="_blank">bi.cloudshare.com</a> in a new tab — stay on that tab.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Open the browser console</h3>
+        <p>Press <strong>F12</strong> (or <strong>Cmd+Option+J</strong> on Mac) to open DevTools, then click the <strong>Console</strong> tab. You must be on the <code>bi.cloudshare.com</code> page.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Copy &amp; paste the script below</h3>
+        <p>Copy the entire script, paste it into the console, and press <strong>Enter</strong>. Progress updates appear in the console as each dataset is fetched. A ZIP file downloads automatically when complete.</p>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <p><strong>⚠️ Chrome security tip:</strong> If Chrome shows a warning about pasting, type <code>allow pasting</code> first and press Enter, then paste the script.</p>
+    </div>
+  </div>
+
+  <!-- The script -->
+  <div class="card">
+    <div class="section-label">Console Script <span></span> <span class="badge">Copy &amp; Paste into bi.cloudshare.com</span></div>
+
+    <div class="script-box">
+      <button class="copy-btn" id="copyBtn" onclick="copyScript()">Copy</button>
+      <pre id="scriptContent">(function() {
+
+// ============================================================
+// CloudShare Analytics Full Export
+// Paste this into the console at bi.cloudshare.com
+// ============================================================
+
+var http = window.prism.$injector.get('$http');
+var errors = [];
+var results = {};
+
+// ---- Utility: build CSV from row arrays ----
+function buildCSV(headers, rows) {
+  var lines = [headers.join(',')];
+  for (var i = 0; i < rows.length; i++) {
+    var cells = rows[i].map(function(v) {
+      var s = (v === null || v === undefined) ? '' : String(v);
+      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+        s = '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    });
+    lines.push(cells.join(','));
+  }
+  return lines.join('\n');
+}
+
+// ---- Utility: extract cell value ----
+function cellVal(cell) {
+  if (!cell) return '';
+  return cell.text !== undefined ? cell.text : (cell.data !== undefined ? cell.data : '');
+}
+
+// ---- Utility: JAQL query ----
+function jaqlQuery(datasource, metadata) {
+  return http.post('/api/datasources/' + datasource + '/jaql', {
+    datasource: { title: datasource },
+    metadata: metadata,
+    count: 50000,
+    offset: 0
+  });
+}
+
+// ---- Utility: download ZIP (pure JS, no dependencies) ----
+function downloadZip(files) {
+  // Mini ZIP builder
+  function toBytes(str) {
+    var arr = [];
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      if (c < 128) { arr.push(c); }
+      else if (c < 2048) { arr.push(192 | (c >> 6), 128 | (c & 63)); }
+      else { arr.push(224 | (c >> 12), 128 | ((c >> 6) & 63), 128 | (c & 63)); }
+    }
+    return new Uint8Array(arr);
+  }
+  function writeInt(buf, offset, val, n) {
+    for (var i = 0; i < n; i++) { buf[offset + i] = (val >> (8 * i)) & 0xff; }
+  }
+  function crc32(data) {
+    var table = crc32._t;
+    if (!table) {
+      table = new Uint32Array(256);
+      for (var i = 0; i < 256; i++) {
+        var c = i;
+        for (var k = 0; k < 8; k++) { c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); }
+        table[i] = c;
+      }
+      crc32._t = table;
+    }
+    var crc = 0xFFFFFFFF;
+    for (var j = 0; j < data.length; j++) { crc = table[(crc ^ data[j]) & 0xff] ^ (crc >>> 8); }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  var localHeaders = [];
+  var centralDirs = [];
+  var offset = 0;
+
+  for (var name in files) {
+    var content = files[name];
+    var nameBytes = toBytes(name);
+    var dataBytes = toBytes(content);
+    var crc = crc32(dataBytes);
+
+    var local = new Uint8Array(30 + nameBytes.length);
+    writeInt(local, 0, 0x04034b50, 4);
+    writeInt(local, 4, 20, 2);
+    writeInt(local, 6, 0, 2);
+    writeInt(local, 8, 0, 2);
+    writeInt(local, 10, 0, 2);
+    writeInt(local, 12, 0, 2);
+    writeInt(local, 14, crc, 4);
+    writeInt(local, 18, dataBytes.length, 4);
+    writeInt(local, 22, dataBytes.length, 4);
+    writeInt(local, 26, nameBytes.length, 2);
+    writeInt(local, 28, 0, 2);
+    local.set(nameBytes, 30);
+
+    var central = new Uint8Array(46 + nameBytes.length);
+    writeInt(central, 0, 0x02014b50, 4);
+    writeInt(central, 4, 20, 2);
+    writeInt(central, 6, 20, 2);
+    writeInt(central, 8, 0, 2);
+    writeInt(central, 10, 0, 2);
+    writeInt(central, 12, 0, 2);
+    writeInt(central, 14, 0, 2);
+    writeInt(central, 16, crc, 4);
+    writeInt(central, 20, dataBytes.length, 4);
+    writeInt(central, 24, dataBytes.length, 4);
+    writeInt(central, 28, nameBytes.length, 2);
+    writeInt(central, 30, 0, 2);
+    writeInt(central, 32, 0, 2);
+    writeInt(central, 34, 0, 2);
+    writeInt(central, 36, 0, 2);
+    writeInt(central, 38, 0, 4);
+    writeInt(central, 42, offset, 4);
+    central.set(nameBytes, 46);
+
+    localHeaders.push({ local: local, data: dataBytes, offset: offset });
+    centralDirs.push(central);
+    offset += local.length + dataBytes.length;
+  }
+
+  var centralSize = centralDirs.reduce(function(s, c) { return s + c.length; }, 0);
+  var eocd = new Uint8Array(22);
+  writeInt(eocd, 0, 0x06054b50, 4);
+  writeInt(eocd, 4, 0, 2);
+  writeInt(eocd, 6, 0, 2);
+  writeInt(eocd, 8, localHeaders.length, 2);
+  writeInt(eocd, 10, localHeaders.length, 2);
+  writeInt(eocd, 12, centralSize, 4);
+  writeInt(eocd, 16, offset, 4);
+  writeInt(eocd, 20, 0, 2);
+
+  var total = offset + centralSize + 22;
+  var zip = new Uint8Array(total);
+  var pos = 0;
+  for (var h = 0; h < localHeaders.length; h++) {
+    zip.set(localHeaders[h].local, pos); pos += localHeaders[h].local.length;
+    zip.set(localHeaders[h].data, pos); pos += localHeaders[h].data.length;
+  }
+  for (var cd = 0; cd < centralDirs.length; cd++) {
+    zip.set(centralDirs[cd], pos); pos += centralDirs[cd].length;
+  }
+  zip.set(eocd, pos);
+
+  var blob = new Blob([zip], { type: 'application/zip' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'cloudshare_analytics_' + new Date().toISOString().slice(0, 10) + '.zip';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+}
+
+// ====================================================================
+// CUBE 1: CloudShareTrainingCube → training_analytics.csv
+// ====================================================================
+function exportTraining() {
+  console.log('%c[1/6] Exporting Training data...', 'color:#F05C37;font-weight:bold');
+  var fields = [
+    { header: 'Course Name',               jaql: { table: 'Course', column: 'Name', dim: '[Course.Name]', datatype: 'text' } },
+    { header: 'Class Type',                jaql: { table: 'Course', column: 'ClassType', dim: '[Course.ClassType]', datatype: 'text' } },
+    { header: 'Class Status',              jaql: { table: 'Course', column: 'ClassStatus', dim: '[Course.ClassStatus]', datatype: 'text' } },
+    { header: 'Instructor',                jaql: { table: 'Course', column: 'Instructor', dim: '[Course.Instructor]', datatype: 'text' } },
+    { header: 'Blueprint',                 jaql: { table: 'Course', column: 'Blueprint', dim: '[Course.Blueprint]', datatype: 'text' } },
+    { header: 'Start Date',                jaql: { table: 'Course', column: 'StartDate', dim: '[Course.StartDate (Calendar)]', datatype: 'datetime' } },
+    { header: 'Class Start Date',          jaql: { table: 'Course', column: 'ClassStartDate', dim: '[Course.ClassStartDate (Calendar)]', datatype: 'datetime' } },
+    { header: 'Student Email',             jaql: { table: 'Student', column: 'Email', dim: '[Student.Email]', datatype: 'text' } },
+    { header: 'First Name',                jaql: { table: 'Student', column: 'FirstName', dim: '[Student.FirstName]', datatype: 'text' } },
+    { header: 'Last Name',                 jaql: { table: 'Student', column: 'LastName', dim: '[Student.LastName]', datatype: 'text' } },
+    { header: 'Company',                   jaql: { table: 'Student', column: 'CompanyName', dim: '[Student.CompanyName]', datatype: 'text' } },
+    { header: 'Country',                   jaql: { table: 'Student', column: 'country_new', dim: '[Student.country_new]', datatype: 'text' } },
+    { header: 'Did Participate',           jaql: { table: 'Student', column: 'DidParticipate', dim: '[Student.DidParticipate]', datatype: 'text' } },
+    { header: 'User Hours',                jaql: { table: 'Student', column: 'UserHourAmount', dim: '[Student.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Email Domain Type',         jaql: { table: 'Student', column: 'Email_Domain_Type', dim: '[Student.Email_Domain_Type]', datatype: 'text' } },
+    { header: 'Time In Session (min)',     jaql: { table: 'Session_Time', column: 'time_in_session_minutes', dim: '[Session_Time.time_in_session_minutes]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Drop Off Rate',             jaql: { table: 'Session_Time', column: 'Drop_Off_Rate', dim: '[Session_Time.Drop_Off_Rate]', datatype: 'text' } }
+  ];
+  return jaqlQuery('CloudShareTrainingCube', fields.map(function(f) { return { jaql: f.jaql }; }))
+    .then(function(resp) {
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Training: ' + values.length + ' rows', 'color:#10b981');
+      var headers = fields.map(function(f) { return f.header; });
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['training_analytics.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Training export failed:', err);
+      errors.push('CloudShareTrainingCube (training_analytics.csv)');
+    });
+}
+
+// ====================================================================
+// CUBE 2: SalesEnablement → sales_enablement.csv
+// ====================================================================
+function exportSalesEnablement() {
+  console.log('%c[2/6] Exporting Sales Enablement data...', 'color:#F05C37;font-weight:bold');
+  var fields = [
+    { header: 'Opportunity',           jaql: { table: 'POCs', column: 'Opportunity', dim: '[POCs.Opportunity1]', datatype: 'text' } },
+    { header: 'Blueprint',             jaql: { table: 'POCs', column: 'Blueprint', dim: '[POCs.Blueprint]', datatype: 'text' } },
+    { header: 'Status',                jaql: { table: 'POCs', column: 'Status', dim: '[POCs.Status]', datatype: 'text' } },
+    { header: 'POC Invitation Created',jaql: { table: 'POCs', column: 'PocInvitationCreateTime', dim: '[POCs.PocInvitationCreateTime (Calendar)]', datatype: 'datetime' } },
+    { header: 'Owning SE',             jaql: { table: 'POCs', column: 'Owning SE', dim: '[POCs.Owning SE]', datatype: 'text' } },
+    { header: 'Accepted By',           jaql: { table: 'POCs', column: 'Accepted By', dim: '[POCs.Accepted By]', datatype: 'text' } },
+    { header: 'Sent To',               jaql: { table: 'POCs', column: 'Sent To', dim: '[POCs.Sent To]', datatype: 'text' } },
+    { header: 'Sent To Full Name',     jaql: { table: 'POCs', column: 'SentToFullName', dim: '[POCs.SentToFullName]', datatype: 'text' } },
+    { header: 'Env Name',              jaql: { table: 'POCs', column: 'env_name', dim: '[POCs.env_name]', datatype: 'text' } },
+    { header: 'Expires By',            jaql: { table: 'POCs', column: 'Expires By', dim: '[POCs.Expires By (Calendar)]', datatype: 'datetime' } },
+    { header: 'End By',                jaql: { table: 'POCs', column: 'EndBy', dim: '[POCs.EndBy (Calendar)]', datatype: 'datetime' } },
+    { header: 'POCs At Risk',          jaql: { table: 'POCs', column: 'POCsAtRisk', dim: '[POCs.POCsAtRisk]', datatype: 'text' } },
+    { header: 'Activity Status',       jaql: { table: 'POCs', column: 'ActivityNewStatus', dim: '[POCs.ActivityNewStatus]', datatype: 'text' } },
+    { header: 'User Hours',            jaql: { table: 'POCs', column: 'UserHourAmount', dim: '[POCs.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Total Disk GB/H',       jaql: { table: 'POCs', column: 'TotalDiskGBH', dim: '[POCs.TotalDiskGBH]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Total GB/H',            jaql: { table: 'POCs', column: 'TotalGBH', dim: '[POCs.TotalGBH]', datatype: 'numeric', agg: 'sum' } }
+  ];
+  return jaqlQuery('SalesEnablement', fields.map(function(f) { return { jaql: f.jaql }; }))
+    .then(function(resp) {
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Sales Enablement: ' + values.length + ' rows', 'color:#10b981');
+      var headers = fields.map(function(f) { return f.header; });
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['sales_enablement.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Sales Enablement export failed:', err);
+      errors.push('SalesEnablement (sales_enablement.csv)');
+    });
+}
+
+// ====================================================================
+// CUBE 3: SalesExperiencesCube → sales_experiences.csv
+// ====================================================================
+function exportSalesExperiences() {
+  console.log('%c[3/6] Exporting Sales Experiences data...', 'color:#F05C37;font-weight:bold');
+  var fields = [
+    { header: 'Experience Name',         jaql: { table: 'SalesExperiences', column: 'ExperienceName', dim: '[SalesExperiences.ExperienceName]', datatype: 'text' } },
+    { header: 'Course Name',             jaql: { table: 'SalesExperiences', column: 'CourseName', dim: '[SalesExperiences.CourseName]', datatype: 'text' } },
+    { header: 'Opportunity',             jaql: { table: 'SalesExperiences', column: 'Opportunity', dim: '[SalesExperiences.Opportunity]', datatype: 'text' } },
+    { header: 'Blueprint',               jaql: { table: 'SalesExperiences', column: 'Blueprint', dim: '[SalesExperiences.Blueprint]', datatype: 'text' } },
+    { header: 'Experience Type',         jaql: { table: 'SalesExperiences', column: 'ExperienceType', dim: '[SalesExperiences.ExperienceType]', datatype: 'text' } },
+    { header: 'Experience Status',       jaql: { table: 'SalesExperiences', column: 'ExperienceStatus', dim: '[SalesExperiences.ExperienceStatus]', datatype: 'text' } },
+    { header: 'Sales Pro Email',         jaql: { table: 'SalesExperiences', column: 'SalesProEmail', dim: '[SalesExperiences.SalesProEmail]', datatype: 'text' } },
+    { header: 'Participant Email',       jaql: { table: 'SalesExperiences', column: 'ParticipantEmail', dim: '[SalesExperiences.ParticipantEmail]', datatype: 'text' } },
+    { header: 'Sent To Full Name',       jaql: { table: 'SalesExperiences', column: 'SentToFullName', dim: '[SalesExperiences.SentToFullName]', datatype: 'text' } },
+    { header: 'Created',                 jaql: { table: 'SalesExperiences', column: 'ExperienceCreateTime', dim: '[SalesExperiences.ExperienceCreateTime (Calendar)]', datatype: 'datetime' } },
+    { header: 'Start Date',              jaql: { table: 'SalesExperiences', column: 'ExperienceStartDate', dim: '[SalesExperiences.ExperienceStartDate (Calendar)]', datatype: 'datetime' } },
+    { header: 'End Date',                jaql: { table: 'SalesExperiences', column: 'ExperienceEndDate', dim: '[SalesExperiences.ExperienceEndDate (Calendar)]', datatype: 'datetime' } },
+    { header: 'Total Active Time (min)', jaql: { table: 'SalesExperiences', column: 'TotalActiveTimeInMinutes', dim: '[SalesExperiences.TotalActiveTimeInMinutes]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Activity Status',         jaql: { table: 'SalesExperiences', column: 'ActivityNewStatus', dim: '[SalesExperiences.ActivityNewStatus]', datatype: 'text' } }
+  ];
+  return jaqlQuery('SalesExperiencesCube', fields.map(function(f) { return { jaql: f.jaql }; }))
+    .then(function(resp) {
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Sales Experiences: ' + values.length + ' rows', 'color:#10b981');
+      var headers = fields.map(function(f) { return f.header; });
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['sales_experiences.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Sales Experiences export failed:', err);
+      errors.push('SalesExperiencesCube (sales_experiences.csv)');
+    });
+}
+
+// ====================================================================
+// CUBE 4: ResourcesConsumptionCube → resources.csv
+// ====================================================================
+function exportResources() {
+  console.log('%c[4/6] Exporting Resource Consumption data...', 'color:#F05C37;font-weight:bold');
+  var fields = [
+    { header: 'Date',              jaql: { table: 'DailyBillingResources', column: 'DataSampleDay', dim: '[DailyBillingResources.DataSampleDay (Calendar)]', datatype: 'datetime' } },
+    { header: 'Project Name',      jaql: { table: 'DailyBillingResources', column: 'ProjectName', dim: '[DailyBillingResources.ProjectName]', datatype: 'text' } },
+    { header: 'Blueprint',         jaql: { table: 'DailyBillingResources', column: 'Blueprint', dim: '[DailyBillingResources.Blueprint]', datatype: 'text' } },
+    { header: 'Env Name',          jaql: { table: 'DailyBillingResources', column: 'EnvName', dim: '[DailyBillingResources.EnvName]', datatype: 'text' } },
+    { header: 'Policy Name',       jaql: { table: 'DailyBillingResources', column: 'PolicyName', dim: '[DailyBillingResources.PolicyName]', datatype: 'text' } },
+    { header: 'Team',              jaql: { table: 'DailyBillingResources', column: 'Team', dim: '[DailyBillingResources.Team]', datatype: 'text' } },
+    { header: 'Region',            jaql: { table: 'DailyBillingResources', column: 'Region', dim: '[DailyBillingResources.Region]', datatype: 'text' } },
+    { header: 'Experience Type',   jaql: { table: 'DailyBillingResources', column: 'ExperienceType', dim: '[DailyBillingResources.ExperienceType]', datatype: 'text' } },
+    { header: 'User Hours',        jaql: { table: 'DailyBillingResources', column: 'UserHourAmount', dim: '[DailyBillingResources.UserHourAmount]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Total Disk GB/H',   jaql: { table: 'DailyBillingResources', column: 'TotalDiskGB/H', dim: '[DailyBillingResources.TotalDiskGB/H]', datatype: 'numeric', agg: 'sum' } },
+    { header: 'Total GB/H',        jaql: { table: 'DailyBillingResources', column: 'TotalGB/H', dim: '[DailyBillingResources.TotalGB/H]', datatype: 'numeric', agg: 'sum' } }
+  ];
+  return jaqlQuery('ResourcesConsumptionCube', fields.map(function(f) { return { jaql: f.jaql }; }))
+    .then(function(resp) {
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Resources: ' + values.length + ' rows', 'color:#10b981');
+      var headers = fields.map(function(f) { return f.header; });
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['resources.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Resources export failed:', err);
+      errors.push('ResourcesConsumptionCube (resources.csv)');
+    });
+}
+
+// ====================================================================
+// CUBE 5: CloudShareEnvironmentsCube → environments.csv
+// Auto-discover fields from dashboard 63d928c2edbb5ec6d88f930b
+// ====================================================================
+function exportEnvironments() {
+  console.log('%c[5/6] Discovering Environments fields from dashboard...', 'color:#F05C37;font-weight:bold');
+  return http.get('/api/dashboards/63d928c2edbb5ec6d88f930b/widgets')
+    .then(function(resp) {
+      var widgets = resp.data || [];
+      var seen = {};
+      var fields = [];
+      for (var w = 0; w < widgets.length; w++) {
+        var widget = widgets[w];
+        var metadata = (widget.metadata && widget.metadata.panels) ? widget.metadata.panels : [];
+        for (var p = 0; p < metadata.length; p++) {
+          var items = metadata[p].items || [];
+          for (var it = 0; it < items.length; it++) {
+            var jaql = items[it].jaql;
+            if (!jaql || !jaql.dim || !jaql.table) continue;
+            if (jaql.table !== 'CloudShareEnvironmentsCube' && jaql.context) continue;
+            var key = jaql.dim;
+            if (!seen[key]) {
+              seen[key] = true;
+              fields.push({
+                header: jaql.title || (jaql.table + '.' + jaql.column) || jaql.dim,
+                jaql: jaql
+              });
+            }
+          }
+        }
+      }
+      if (fields.length === 0) {
+        console.warn('    No fields discovered for Environments cube, trying fallback fields...');
+        // Fallback: common environment fields
+        fields = [
+          { header: 'Env Name', jaql: { table: 'Environments', column: 'EnvName', dim: '[Environments.EnvName]', datatype: 'text' } },
+          { header: 'Project Name', jaql: { table: 'Environments', column: 'ProjectName', dim: '[Environments.ProjectName]', datatype: 'text' } },
+          { header: 'Blueprint', jaql: { table: 'Environments', column: 'Blueprint', dim: '[Environments.Blueprint]', datatype: 'text' } },
+          { header: 'Status', jaql: { table: 'Environments', column: 'Status', dim: '[Environments.Status]', datatype: 'text' } },
+          { header: 'Region', jaql: { table: 'Environments', column: 'Region', dim: '[Environments.Region]', datatype: 'text' } },
+          { header: 'Created', jaql: { table: 'Environments', column: 'CreateTime', dim: '[Environments.CreateTime (Calendar)]', datatype: 'datetime' } }
+        ];
+      }
+      console.log('%c    Discovered ' + fields.length + ' Environments fields', 'color:#10b981');
+      return jaqlQuery('CloudShareEnvironmentsCube', fields.map(function(f) { return { jaql: f.jaql }; }));
+    })
+    .then(function(resp) {
+      if (!resp) return;
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Environments: ' + values.length + ' rows', 'color:#10b981');
+      // Rebuild field headers from resp metadata if available
+      var headers = (resp.config && resp.config.data && resp.config.data.metadata)
+        ? resp.config.data.metadata.map(function(m) { return m.jaql.title || m.jaql.column || m.jaql.dim; })
+        : ['(fields)'];
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['environments.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Environments export failed:', err);
+      errors.push('CloudShareEnvironmentsCube (environments.csv)');
+    });
+}
+
+// ====================================================================
+// CUBE 6: ProjectMemberUsageCube → project_members.csv
+// Auto-discover fields from dashboard 652bd3c9be28a68c906f240c
+// ====================================================================
+function exportProjectMembers() {
+  console.log('%c[6/6] Discovering Project Members fields from dashboard...', 'color:#F05C37;font-weight:bold');
+  return http.get('/api/dashboards/652bd3c9be28a68c906f240c/widgets')
+    .then(function(resp) {
+      var widgets = resp.data || [];
+      var seen = {};
+      var fields = [];
+      for (var w = 0; w < widgets.length; w++) {
+        var widget = widgets[w];
+        var metadata = (widget.metadata && widget.metadata.panels) ? widget.metadata.panels : [];
+        for (var p = 0; p < metadata.length; p++) {
+          var items = metadata[p].items || [];
+          for (var it = 0; it < items.length; it++) {
+            var jaql = items[it].jaql;
+            if (!jaql || !jaql.dim || !jaql.table) continue;
+            var key = jaql.dim;
+            if (!seen[key]) {
+              seen[key] = true;
+              fields.push({
+                header: jaql.title || (jaql.table + '.' + jaql.column) || jaql.dim,
+                jaql: jaql
+              });
+            }
+          }
+        }
+      }
+      if (fields.length === 0) {
+        console.warn('    No fields discovered for Project Members cube, trying fallback fields...');
+        fields = [
+          { header: 'Project Name', jaql: { table: 'ProjectMembers', column: 'ProjectName', dim: '[ProjectMembers.ProjectName]', datatype: 'text' } },
+          { header: 'User Email', jaql: { table: 'ProjectMembers', column: 'UserEmail', dim: '[ProjectMembers.UserEmail]', datatype: 'text' } },
+          { header: 'Role', jaql: { table: 'ProjectMembers', column: 'Role', dim: '[ProjectMembers.Role]', datatype: 'text' } },
+          { header: 'User Hours', jaql: { table: 'ProjectMembers', column: 'UserHourAmount', dim: '[ProjectMembers.UserHourAmount]', datatype: 'numeric', agg: 'sum' } }
+        ];
+      }
+      console.log('%c    Discovered ' + fields.length + ' Project Members fields', 'color:#10b981');
+      return jaqlQuery('ProjectMemberUsageCube', fields.map(function(f) { return { jaql: f.jaql }; }));
+    })
+    .then(function(resp) {
+      if (!resp) return;
+      var values = (resp.data && resp.data.values) ? resp.data.values : [];
+      console.log('%c    Project Members: ' + values.length + ' rows', 'color:#10b981');
+      var headers = (resp.config && resp.config.data && resp.config.data.metadata)
+        ? resp.config.data.metadata.map(function(m) { return m.jaql.title || m.jaql.column || m.jaql.dim; })
+        : ['(fields)'];
+      var rows = values.map(function(row) {
+        return row.map(function(cell) { return cellVal(cell); });
+      });
+      results['project_members.csv'] = buildCSV(headers, rows);
+    })
+    .catch(function(err) {
+      console.error('    Project Members export failed:', err);
+      errors.push('ProjectMemberUsageCube (project_members.csv)');
+    });
+}
+
+// ====================================================================
+// RUN ALL EXPORTS IN SEQUENCE, THEN DOWNLOAD ZIP
+// ====================================================================
+console.log('%cCloudShare Analytics Export Starting...', 'color:#242D37;font-weight:bold;font-size:14px');
+console.log('%cThis may take 30–60 seconds depending on data volume.', 'color:#6b7280');
+
+exportTraining()
+  .then(function() { return exportSalesEnablement(); })
+  .then(function() { return exportSalesExperiences(); })
+  .then(function() { return exportResources(); })
+  .then(function() { return exportEnvironments(); })
+  .then(function() { return exportProjectMembers(); })
+  .then(function() {
+    var fileCount = Object.keys(results).length;
+    if (fileCount === 0) {
+      console.error('%cExport failed: no data was retrieved. Check that you are logged into bi.cloudshare.com.', 'color:#ef4444;font-weight:bold');
+      return;
+    }
+    if (errors.length > 0) {
+      console.warn('%cCompleted with errors. These cubes failed:', 'color:#f59e0b;font-weight:bold');
+      errors.forEach(function(e) { console.warn('  ✗ ' + e); });
+    }
+    console.log('%cAll exports complete! Building ZIP...', 'color:#10b981;font-weight:bold');
+    console.log('%c  Files: ' + Object.keys(results).join(', '), 'color:#10b981');
+    downloadZip(results);
+    console.log('%c✅ ZIP downloaded! Check your Downloads folder.', 'color:#10b981;font-weight:bold;font-size:13px');
+  })
+  .catch(function(err) {
+    console.error('Unexpected export error:', err);
+  });
+
+})();</pre>
+    </div>
+
+    <p class="note">
+      <strong>What to expect:</strong> The console will log progress for each of the 6 datasets. Large accounts may take 30–60 seconds. The ZIP downloads automatically when all exports finish. If any cube fails, the others still export and the error is reported in the console.
+    </p>
+  </div>
+
+  <!-- Troubleshooting -->
+  <div class="card">
+    <div class="section-label">Troubleshooting <span></span></div>
+
+    <div class="step">
+      <div class="step-num" style="background:#6b7280">?</div>
+      <div class="step-content">
+        <h3>"Cannot read property '$injector'" error</h3>
+        <p>You're not on the right page. Navigate to <code>bi.cloudshare.com</code> first (open Analytics from CloudShare Accelerate), then paste the script again.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:#6b7280">?</div>
+      <div class="step-content">
+        <h3>A cube returns 0 rows</h3>
+        <p>Your account may not have data in that cube, or the field names may differ. The export still completes — check which CSVs have content inside the ZIP.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:#6b7280">?</div>
+      <div class="step-content">
+        <h3>Environments or Project Members shows wrong columns</h3>
+        <p>The script auto-discovers fields from dashboard widget definitions. If the dashboard layout changed, the column headers may shift. The data itself is still correct.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num" style="background:#6b7280">?</div>
+      <div class="step-content">
+        <h3>Script times out on large datasets</h3>
+        <p>Sisense caps responses at 50,000 rows per query. If you need more, run exports on a filtered date range or contact CloudShare support for a direct database export.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function copyScript() {
+  var text = document.getElementById('scriptContent').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopied();
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showCopied(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function showCopied() {
+  var btn = document.getElementById('copyBtn');
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(function() {
+    btn.textContent = 'Copy';
+    btn.classList.remove('copied');
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
